@@ -9,6 +9,7 @@ import { CoordinateGrid } from './CoordinateGrid.jsx';
 import { OriginAxes } from './OriginAxes.jsx';
 import { SelectionRipple } from './SelectionRipple.jsx';
 import { WaterSurfaceFilter } from './WaterSurfaceFilter.jsx';
+import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation.js';
 import { useMapCamera } from '../hooks/useMapCamera.js';
@@ -60,8 +61,8 @@ export function MapViewport() {
       {hudVisible && <EndpointLabels />}
       {!candidates.length && !isLoading && (
         <div className="empty-state">
-          <strong>Enter a query to generate a candidate space.</strong>
-          <span>WASD or arrow keys move the camera. Mouse wheel zooms.</span>
+          <strong>{uiText.map.emptyTitle}</strong>
+          <span>{uiText.map.emptyHint}</span>
         </div>
       )}
       {taskError && <div className="error-state">{taskError}</div>}

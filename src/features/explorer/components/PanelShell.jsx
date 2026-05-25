@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 
 export function PanelShell({ title, children }) {
@@ -8,7 +9,7 @@ export function PanelShell({ title, children }) {
       <aside className="side-panel" onMouseDown={(event) => event.stopPropagation()}>
         <div className="panel-head">
           <h2>{title}</h2>
-          <button onClick={() => setActivePanel(null)} title="Close"><X size={17} /></button>
+          <button onClick={() => setActivePanel(null)} title={uiText.panels.close}><X size={17} /></button>
         </div>
         <div className="panel-body">{children}</div>
       </aside>

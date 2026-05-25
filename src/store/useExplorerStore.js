@@ -64,7 +64,7 @@ const initialState = {
   audioError: null,
 
   hudVisible: true,
-  candidateHudCollapsed: false,
+  candidateHudCollapsed: true,
   activePanel: null,
 
   requestHistory: readJson(STORAGE_KEYS.requestHistory, []),

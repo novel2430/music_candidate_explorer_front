@@ -1,4 +1,5 @@
 import { resolveUrl } from '../api/httpClient.js';
+import { uiText } from '../config/uiText.js';
 import { useExplorerStore } from '../store/useExplorerStore.js';
 
 let audio = null;
@@ -14,14 +15,14 @@ function ensureAudio() {
     useExplorerStore.getState().setAudioState({ isPlaying: false, currentTime: 0 });
   });
   audio.addEventListener('error', () => {
-    useExplorerStore.getState().setAudioState({ isPlaying: false, audioError: 'Audio unavailable or failed to load.' });
+    useExplorerStore.getState().setAudioState({ isPlaying: false, audioError: uiText.errors.audioUnavailable });
   });
   return audio;
 }
 
 export async function playCandidate(candidate) {
   if (!candidate?.audio_url) {
-    useExplorerStore.getState().setAudioState({ audioError: 'This candidate has no audio_url.' });
+    useExplorerStore.getState().setAudioState({ audioError: uiText.errors.missingAudioUrl });
     return;
   }
 
@@ -42,7 +43,7 @@ export async function playCandidate(candidate) {
     });
     useExplorerStore.getState().logUserEvent('candidate.play', { candidateId: candidate.candidate_id });
   } catch (error) {
-    useExplorerStore.getState().setAudioState({ isPlaying: false, audioError: error.message || 'Audio failed to play.' });
+    useExplorerStore.getState().setAudioState({ isPlaying: false, audioError: error.message || uiText.errors.audioPlayFailed });
   }
 }
 

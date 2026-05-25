@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { uiText } from '../../../config/uiText.js';
 import { loadArtifactContent, loadArtifactMetadata } from '../../../services/artifactWorkflow.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { compactJson, formatMs } from '../../../utils/formatters.js';
@@ -7,26 +8,27 @@ import { PanelShell } from './PanelShell.jsx';
 export function DebugPanel() {
   const store = useExplorerStore();
   const [activeTab, setActiveTab] = useState('task');
+  const tabs = Object.entries(uiText.debug.tabs);
 
   return (
-    <PanelShell title="Debug">
+    <PanelShell title={uiText.panels.debugTitle}>
       <div className="tabs">
-        {['task', 'space', 'artifacts', 'requests', 'events'].map((tab) => (
-          <button className={activeTab === tab ? 'is-active' : ''} onClick={() => setActiveTab(tab)} key={tab}>{tab}</button>
+        {tabs.map(([tab, label]) => (
+          <button className={activeTab === tab ? 'is-active' : ''} onClick={() => setActiveTab(tab)} key={tab}>{label}</button>
         ))}
       </div>
-      {activeTab === 'task' && <pre>{compactJson(store.currentTask) || 'No task yet.'}</pre>}
-      {activeTab === 'space' && <pre>{compactJson(store.currentSpace) || 'No space yet.'}</pre>}
+      {activeTab === 'task' && <pre>{compactJson(store.currentTask) || uiText.debug.emptyTask}</pre>}
+      {activeTab === 'space' && <pre>{compactJson(store.currentSpace) || uiText.debug.emptySpace}</pre>}
       {activeTab === 'artifacts' && (
         <div className="artifact-list">
-          {!store.artifacts.length && <p>No artifacts.</p>}
+          {!store.artifacts.length && <p>{uiText.debug.emptyArtifacts}</p>}
           {store.artifacts.map((artifact) => (
             <article key={artifact.artifact_id}>
               <strong>{artifact.kind}</strong>
               <small>{artifact.artifact_id}</small>
               <div className="panel-actions">
-                <button onClick={() => loadArtifactMetadata(artifact.artifact_id)}>Metadata</button>
-                <button onClick={() => loadArtifactContent(artifact.artifact_id)}>Content</button>
+                <button onClick={() => loadArtifactMetadata(artifact.artifact_id)}>{uiText.debug.metadata}</button>
+                <button onClick={() => loadArtifactContent(artifact.artifact_id)}>{uiText.debug.content}</button>
               </div>
               <pre>{compactJson(store.artifactMetadataById[artifact.artifact_id])}</pre>
               <pre>{typeof store.artifactContentById[artifact.artifact_id] === 'string' ? store.artifactContentById[artifact.artifact_id] : compactJson(store.artifactContentById[artifact.artifact_id])}</pre>

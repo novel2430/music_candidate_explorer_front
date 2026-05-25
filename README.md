@@ -36,6 +36,16 @@ Configuration order:
 2. The Advanced panel can temporarily edit `BASE_URL`.
 3. The edited value is saved in `localStorage` and reused on reload.
 
+## UI Text
+
+Most user-facing static text is centralized in:
+
+```txt
+src/config/uiText.js
+```
+
+Edit this file to change labels, button text, panel titles, empty states, fallback axis labels, theme option labels, and common UI error messages.
+
 ## Features
 
 - Query-driven workflow: create workspace, create exploration task, poll task, load space.
@@ -54,6 +64,7 @@ Configuration order:
 src/
   api/                 endpoint wrappers and http client
   config/              default environment values
+  config/uiText.js     centralized UI copy
   features/explorer/   page, components, and explorer hooks
   services/            workflows, polling, artifacts, audio controller
   store/               Zustand state

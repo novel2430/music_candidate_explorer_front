@@ -1,4 +1,5 @@
 import React from 'react';
+import { uiText } from './config/uiText.js';
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -15,7 +16,7 @@ export class ErrorBoundary extends React.Component {
 
     return (
       <div className="fatal-error">
-        <h1>Application error</h1>
+        <h1>{uiText.app.fatalErrorTitle}</h1>
         <pre>{this.state.error?.stack || this.state.error?.message || String(this.state.error)}</pre>
       </div>
     );

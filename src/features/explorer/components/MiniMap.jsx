@@ -1,3 +1,4 @@
+import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { minimapPoint } from '../../../utils/scales.js';
 import { clamp } from '../../../utils/geometry.js';
@@ -13,8 +14,8 @@ export function MiniMap({ bounds }) {
 
   return (
     <aside className="mini-map" onPointerDown={(event) => event.stopPropagation()}>
-      <div className="mini-map-title">MiniMap</div>
-      <svg viewBox={`0 0 ${size.width} ${size.height}`} role="img" aria-label="Candidate minimap">
+      <div className="mini-map-title">{uiText.map.minimapTitle}</div>
+      <svg viewBox={`0 0 ${size.width} ${size.height}`} role="img" aria-label={uiText.map.minimapAria}>
         <rect className="mini-bg" width={size.width} height={size.height} rx="8" />
         <line className="mini-origin-axis" x1={origin.x} y1="0" x2={origin.x} y2={size.height} />
         <line className="mini-origin-axis" x1="0" y1={origin.y} x2={size.width} y2={origin.y} />

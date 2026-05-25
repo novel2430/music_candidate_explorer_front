@@ -1,5 +1,6 @@
 import { AxisNameFrame } from './AxisNameFrame.jsx';
 import { MapViewport } from './MapViewport.jsx';
+import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 
 export function MapArea() {
@@ -7,9 +8,9 @@ export function MapArea() {
   const showAxisFrames = useExplorerStore((state) => state.showAxisFrames);
   return (
     <section className={`map-area ${showAxisFrames ? 'has-axis-frames' : 'no-axis-frames'}`}>
-      {showAxisFrames && <AxisNameFrame position="left" label={axisLabels?.y?.ui_name || '張力感'} />}
+      {showAxisFrames && <AxisNameFrame position="left" label={axisLabels?.y?.ui_name || uiText.axisFallbacks.yName} />}
       <MapViewport />
-      {showAxisFrames && <AxisNameFrame position="bottom" label={axisLabels?.x?.ui_name || '明亮感'} />}
+      {showAxisFrames && <AxisNameFrame position="bottom" label={axisLabels?.x?.ui_name || uiText.axisFallbacks.xName} />}
     </section>
   );
 }

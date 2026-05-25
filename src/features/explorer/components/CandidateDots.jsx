@@ -1,3 +1,4 @@
+import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { worldToScreen } from '../../../utils/scales.js';
 
@@ -45,7 +46,7 @@ export function CandidateDots({ bounds }) {
             }}
             onMouseEnter={() => hoverCandidate(candidate.candidate_id)}
             onMouseLeave={() => hoverCandidate(null)}
-            aria-label={`Candidate ${candidate.rank}`}
+            aria-label={uiText.candidate.ariaLabel(candidate.rank)}
           />
         );
       })}

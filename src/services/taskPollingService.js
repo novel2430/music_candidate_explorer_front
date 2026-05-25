@@ -1,4 +1,5 @@
 import { getTask } from '../api/tasksApi.js';
+import { uiText } from '../config/uiText.js';
 import { useExplorerStore } from '../store/useExplorerStore.js';
 
 export async function pollTaskUntilDone(taskId, options = {}) {
@@ -14,7 +15,7 @@ export async function pollTaskUntilDone(taskId, options = {}) {
       return task;
     }
     if (task.status === 'failed') {
-      const message = task.error || 'Task failed';
+      const message = task.error || uiText.errors.taskFailed;
       useExplorerStore.getState().logUserEvent('task.failed', { taskId, error: message });
       throw new Error(message);
     }
@@ -22,5 +23,5 @@ export async function pollTaskUntilDone(taskId, options = {}) {
     await new Promise((resolve) => window.setTimeout(resolve, intervalMs));
   }
 
-  throw new Error(`Task polling timed out after ${maxAttempts} attempts`);
+  throw new Error(uiText.errors.taskPollingTimeout(maxAttempts));
 }

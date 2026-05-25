@@ -1,6 +1,7 @@
 import { createWorkspace } from '../api/workspacesApi.js';
 import { createTask } from '../api/tasksApi.js';
 import { getSpace } from '../api/spacesApi.js';
+import { uiText } from '../config/uiText.js';
 import { useExplorerStore } from '../store/useExplorerStore.js';
 import { pollTaskUntilDone } from './taskPollingService.js';
 
@@ -41,7 +42,7 @@ export async function startExploration({ query, poolId, topK, selectN, axes, end
       intervalMs: useExplorerStore.getState().pollingInterval,
     });
     const spaceId = completedTask.outputs?.space_id;
-    if (!spaceId) throw new Error('Task finished without outputs.space_id');
+    if (!spaceId) throw new Error(uiText.errors.missingSpaceId);
 
     const space = await getSpace(spaceId);
     useExplorerStore.getState().setSpace(space);

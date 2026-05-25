@@ -1,3 +1,4 @@
+import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { worldToScreen } from '../../../utils/scales.js';
 
@@ -9,9 +10,9 @@ export function CandidateTooltip({ bounds }) {
 
   return (
     <div className="candidate-tooltip" style={{ left: point.x + 14, top: point.y - 12 }}>
-      <strong>Candidate #{candidate.rank}</strong>
-      <span>{candidate.semantic_tags?.join(' / ') || 'untagged'}</span>
-      <small>click to inspect</small>
+      <strong>{uiText.candidate.title(candidate.rank)}</strong>
+      <span>{candidate.semantic_tags?.join(' / ') || uiText.candidate.untagged}</span>
+      <small>{uiText.candidate.tooltipHint}</small>
     </div>
   );
 }

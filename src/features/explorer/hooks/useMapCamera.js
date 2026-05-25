@@ -5,9 +5,15 @@ export function useMapCamera() {
   const ref = useRef(null);
   const setViewportSize = useExplorerStore((state) => state.setViewportSize);
   const panCamera = useExplorerStore((state) => state.panCamera);
+  const zoom = useExplorerStore((state) => state.zoom);
   const setDragging = useExplorerStore((state) => state.setDragging);
   const logUserEvent = useExplorerStore((state) => state.logUserEvent);
   const dragRef = useRef(null);
+  const zoomRef = useRef(zoom);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
 
   useEffect(() => {
     if (!ref.current) return undefined;
@@ -31,7 +37,7 @@ export function useMapCamera() {
       const dx = event.clientX - dragRef.current.x;
       const dy = event.clientY - dragRef.current.y;
       dragRef.current = { x: event.clientX, y: event.clientY };
-      panCamera(-dx, -dy);
+      panCamera(-dx / zoomRef.current, -dy / zoomRef.current);
     },
     onPointerUp: () => {
       if (dragRef.current) logUserEvent('map.pan');
