@@ -17,6 +17,33 @@
 }
 .hud-head { display: flex; justify-content: space-between; gap: 14px; align-items: start; }
 .hud-kicker { color: var(--color-hud-muted); font-size: 12px; margin-bottom: 4px; }
+.semantic-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.semantic-tags.is-compact {
+  gap: 5px;
+}
+.semantic-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 999px;
+  background: rgba(236, 239, 244, 0.08);
+  color: var(--color-hud-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.semantic-tags.is-compact .semantic-tag {
+  min-height: 20px;
+  padding: 0 8px;
+  font-size: 11px;
+}
 .hud-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .play-button { min-width: 42px; color: var(--color-node-playing); }
 .mark-active.good { border-color: var(--color-good); color: var(--color-good); }

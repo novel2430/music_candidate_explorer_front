@@ -1,6 +1,7 @@
 import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { worldToScreen } from '../../../utils/scales.js';
+import { SemanticTagPills } from './SemanticTagPills.jsx';
 
 export function CandidateTooltip({ bounds }) {
   const state = useExplorerStore();
@@ -11,7 +12,7 @@ export function CandidateTooltip({ bounds }) {
   return (
     <div className="candidate-tooltip" style={{ left: point.x + 14, top: point.y - 12 }}>
       <strong>{uiText.candidate.title(candidate.rank)}</strong>
-      <span>{candidate.semantic_tags?.join(' / ') || uiText.candidate.untagged}</span>
+      <SemanticTagPills tags={candidate.semantic_tags} compact />
       <small>{uiText.candidate.tooltipHint}</small>
     </div>
   );

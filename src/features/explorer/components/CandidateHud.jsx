@@ -5,6 +5,7 @@ import { pause, togglePlay } from '../../../services/audioController.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { formatTime } from '../../../utils/formatters.js';
 import { useCandidateSelection } from '../hooks/useCandidateSelection.js';
+import { SemanticTagPills } from './SemanticTagPills.jsx';
 
 export function CandidateHud() {
   const state = useExplorerStore();
@@ -20,7 +21,7 @@ export function CandidateHud() {
       <div className="hud-head">
         <div>
           <div className="hud-kicker">{uiText.candidate.title(selectedCandidate.rank)}</div>
-          <strong>{selectedCandidate.semantic_tags?.join(' / ') || uiText.candidate.untagged}</strong>
+          <SemanticTagPills tags={selectedCandidate.semantic_tags} />
         </div>
         <button title={uiText.candidate.details} onClick={() => state.setCandidateHudCollapsed(!collapsed)}>
           {collapsed ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
