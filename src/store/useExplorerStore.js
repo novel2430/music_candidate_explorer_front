@@ -10,6 +10,7 @@ const STORAGE_KEYS = {
   requestHistory: 'mcse.requestHistory',
   candidateMarks: 'mcse.candidateMarks',
   queryParams: 'mcse.queryParams',
+  showAxisFrames: 'mcse.showAxisFrames',
 };
 
 const savedParams = readJson(STORAGE_KEYS.queryParams, {});
@@ -22,6 +23,7 @@ const initialState = {
   axes: savedParams.axes || ['pc1', 'pc2', 'pc3'],
   endpointNList: savedParams.endpointNList || [5, 10, 20],
   pollingInterval: savedParams.pollingInterval || 1400,
+  showAxisFrames: readJson(STORAGE_KEYS.showAxisFrames, false),
   recentQueries: readJson(STORAGE_KEYS.recentQueries, []),
 
   workspaceId: null,
@@ -51,6 +53,7 @@ const initialState = {
   selectedCandidateId: null,
   hoveredCandidateId: null,
   focusedCandidateId: null,
+  selectionPulseId: 0,
   candidateMarks: readJson(STORAGE_KEYS.candidateMarks, {}),
 
   playingCandidateId: null,
@@ -95,6 +98,10 @@ export const useExplorerStore = create((set, get) => ({
       persistQueryParams(next);
       return params;
     });
+  },
+  setShowAxisFrames: (showAxisFrames) => {
+    writeJson(STORAGE_KEYS.showAxisFrames, showAxisFrames);
+    set({ showAxisFrames });
   },
   setThemeName: (themeName) => {
     writeJson(STORAGE_KEYS.themeName, themeName);
@@ -163,7 +170,11 @@ export const useExplorerStore = create((set, get) => ({
   },
 
   selectCandidate: (candidateId) => {
-    set({ selectedCandidateId: candidateId, focusedCandidateId: candidateId });
+    set((state) => ({
+      selectedCandidateId: candidateId,
+      focusedCandidateId: candidateId,
+      selectionPulseId: state.selectionPulseId + 1,
+    }));
     get().logUserEvent('candidate.select', { candidateId });
   },
   hoverCandidate: (candidateId) => {

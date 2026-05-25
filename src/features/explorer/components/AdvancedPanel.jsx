@@ -13,6 +13,7 @@ export function AdvancedPanel() {
     axes: store.axes.join(', '),
     endpointNList: store.endpointNList.join(', '),
     pollingInterval: store.pollingInterval,
+    showAxisFrames: store.showAxisFrames,
   });
 
   function update(key, value) {
@@ -29,6 +30,7 @@ export function AdvancedPanel() {
       endpointNList: parseCsvNumbers(form.endpointNList, [5, 10, 20]),
       pollingInterval: Number(form.pollingInterval),
     });
+    store.setShowAxisFrames(Boolean(form.showAxisFrames));
   }
 
   return (
@@ -42,6 +44,10 @@ export function AdvancedPanel() {
       <label>axes<input value={form.axes} onChange={(event) => update('axes', event.target.value)} /></label>
       <label>endpoint_n_list<input value={form.endpointNList} onChange={(event) => update('endpointNList', event.target.value)} /></label>
       <label>polling interval ms<input type="number" value={form.pollingInterval} onChange={(event) => update('pollingInterval', event.target.value)} /></label>
+      <label className="checkbox-field">
+        <input type="checkbox" checked={form.showAxisFrames} onChange={(event) => update('showAxisFrames', event.target.checked)} />
+        Show X/Y axis labels outside map
+      </label>
       <div className="panel-actions">
         <button className="primary-button" onClick={save}>Save</button>
         <button onClick={store.resetLocalState}>Reset local state</button>

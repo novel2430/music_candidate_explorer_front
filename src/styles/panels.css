@@ -23,6 +23,14 @@
 .panel-head h2 { margin: 0; font-size: 18px; }
 .panel-body { height: calc(100% - 54px); overflow: auto; display: grid; align-content: start; gap: 14px; }
 .panel-body label { display: grid; gap: 7px; color: var(--color-hud-muted); font-size: 12px; }
+.panel-body .checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.checkbox-field input {
+  width: auto;
+}
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .panel-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
