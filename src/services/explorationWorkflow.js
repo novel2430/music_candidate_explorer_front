@@ -32,6 +32,7 @@ export async function startExploration({ query, poolId, topK, selectN, axes, end
         select_n: Number(selectN),
         axes,
         endpoint_n_list: endpointNList,
+        polish_axis_labels: true,
       },
     });
 

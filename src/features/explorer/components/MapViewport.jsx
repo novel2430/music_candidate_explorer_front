@@ -21,6 +21,7 @@ export function MapViewport() {
   const candidates = useExplorerStore((state) => state.candidates);
   const taskStatus = useExplorerStore((state) => state.taskStatus);
   const taskError = useExplorerStore((state) => state.taskError);
+  const displayAxisLabels = useExplorerStore((state) => state.displayAxisLabels);
   const hudVisible = useExplorerStore((state) => state.hudVisible);
   const selectedCandidateId = useExplorerStore((state) => state.selectedCandidateId);
   const selectionPulseId = useExplorerStore((state) => state.selectionPulseId);
@@ -34,6 +35,7 @@ export function MapViewport() {
   useKeyboardNavigation(true);
   const bounds = useMemo(() => normalizeBounds(candidates), [candidates]);
   const isLoading = ['queued', 'running'].includes(taskStatus);
+  const loadingText = taskStatus === 'queued' ? uiText.map.loadingQueued : uiText.map.loadingRunning;
   const selectedCandidate = useMemo(
     () => candidates.find((candidate) => candidate.candidate_id === selectedCandidateId),
     [candidates, selectedCandidateId],
@@ -59,6 +61,8 @@ export function MapViewport() {
         <CandidateDots bounds={bounds} />
       </div>
       {hudVisible && <EndpointLabels />}
+      {displayAxisLabels?.globalNote && <div className="axis-global-note">{displayAxisLabels.globalNote}</div>}
+      {isLoading && <div className="loading-state">{loadingText}</div>}
       {!candidates.length && !isLoading && (
         <div className="empty-state">
           <strong>{uiText.map.emptyTitle}</strong>

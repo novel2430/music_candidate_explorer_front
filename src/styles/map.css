@@ -176,6 +176,25 @@
 .endpoint-bottom { bottom: 24px; left: 50%; translate: -50% 0; }
 .endpoint-left { left: 26px; top: 50%; translate: 0 -50%; }
 .endpoint-right { right: 26px; top: 50%; translate: 0 -50%; }
+.axis-global-note {
+  position: absolute;
+  z-index: 4;
+  top: 72px;
+  left: 50%;
+  translate: -50% 0;
+  width: min(720px, calc(100% - 48px));
+  padding: 10px 14px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 8px;
+  background: var(--color-hud-bg);
+  color: var(--color-hud-muted);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+  backdrop-filter: blur(var(--blur-hud));
+  pointer-events: none;
+}
+.loading-state,
 .empty-state, .error-state {
   position: absolute;
   z-index: 4;
@@ -191,6 +210,10 @@
   background: var(--color-hud-bg);
   backdrop-filter: blur(var(--blur-hud));
   border-radius: var(--radius-hud);
+}
+.loading-state {
+  color: var(--color-hud-text);
+  font-weight: 700;
 }
 .empty-state strong { color: var(--color-hud-text); }
 .error-state { color: var(--color-bad); max-width: min(680px, 80vw); }

@@ -20,6 +20,8 @@ export const uiText = {
   map: {
     emptyTitle: 'Enter a query to generate a candidate space.',
     emptyHint: 'WASD or arrow keys move the camera. Mouse wheel zooms.',
+    loadingQueued: '任务排队中',
+    loadingRunning: '正在分析候选空间与生成坐标轴说明…',
     showHud: 'HUD',
     minimapTitle: 'MiniMap',
     minimapAria: 'Candidate minimap',

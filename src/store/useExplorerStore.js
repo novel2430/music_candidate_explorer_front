@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { DEFAULT_BASE_URL } from '../config/env.js';
+import { getDisplayAxisLabels } from '../utils/axisLabels.js';
 import { readJson, removeStorage, writeJson } from '../utils/storage.js';
 
 const STORAGE_KEYS = {
@@ -36,6 +37,7 @@ const initialState = {
   currentSpace: null,
   candidates: [],
   axisLabels: null,
+  displayAxisLabels: null,
   selectedPair: [],
   artifacts: [],
   artifactMetadataById: {},
@@ -122,7 +124,10 @@ export const useExplorerStore = create((set, get) => ({
       currentTask: null,
       currentSpaceId: null,
       currentSpace: null,
+      axisLabels: null,
+      displayAxisLabels: null,
       candidates: [],
+      selectedPair: [],
       selectedCandidateId: null,
       hoveredCandidateId: null,
       artifacts: [],
@@ -145,6 +150,7 @@ export const useExplorerStore = create((set, get) => ({
       currentSpace: space,
       candidates: space?.candidates || [],
       axisLabels: space?.axis_labels || null,
+      displayAxisLabels: getDisplayAxisLabels(space),
       selectedPair: space?.selected_pair || [],
       taskStatus: 'done',
       cameraX: 0,
