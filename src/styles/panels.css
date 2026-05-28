@@ -118,6 +118,7 @@
   height: 228px;
   touch-action: none;
   cursor: grab;
+  overflow: hidden;
 }
 .mix-geometry svg:active { cursor: grabbing; }
 .mix-panel-line {
@@ -133,6 +134,14 @@
   fill: var(--color-node);
   stroke: var(--color-hud-text);
   stroke-width: 2;
+}
+.mix-panel-anchor-label {
+  fill: var(--color-hud-text);
+  font-size: 11px;
+  font-weight: 800;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
 }
 .mix-panel-point {
   fill: var(--color-node-playing);
@@ -157,6 +166,19 @@
 .mix-weight-list strong, .mix-params dd {
   margin: 0;
   color: var(--color-hud-text);
+}
+.mix-weight-input {
+  display: grid;
+  grid-template-columns: 72px auto;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+}
+.mix-weight-input .mix-input {
+  height: 32px;
+  padding: 6px 8px;
+  text-align: right;
 }
 .mix-params dt { color: var(--color-hud-muted); }
 .mix-form {

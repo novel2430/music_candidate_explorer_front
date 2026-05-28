@@ -77,7 +77,7 @@ export const uiText = {
     emptyHint: '按住 Ctrl 或 Cmd 点击地图上的候选，加入 Mixing。至少选择 2 个候选才能生成混合。',
     sources: 'Sources',
     geometry: 'Blend point',
-    geometryHint: '拖动混合点调整比例',
+    geometryHint: '拖动调整比例，滚轮缩放',
     weights: 'Weights',
     settings: 'Settings',
     outputBars: '小节数',
