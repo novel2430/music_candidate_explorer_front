@@ -22,6 +22,8 @@ export const uiText = {
     emptyHint: 'WASD or arrow keys move the camera. Mouse wheel zooms.',
     loadingQueued: '任务排队中',
     loadingRunning: '正在分析候选空间与生成坐标轴说明…',
+    showAxisNote: '显示坐标轴说明',
+    hideAxisNote: '隐藏坐标轴说明',
     showHud: 'HUD',
     minimapTitle: 'MiniMap',
     minimapAria: 'Candidate minimap',

@@ -176,13 +176,32 @@
 .endpoint-bottom { bottom: 24px; left: 50%; translate: -50% 0; }
 .endpoint-left { left: 26px; top: 50%; translate: 0 -50%; }
 .endpoint-right { right: 26px; top: 50%; translate: 0 -50%; }
-.axis-global-note {
+.axis-note-control {
   position: absolute;
   z-index: 4;
   top: 72px;
   left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
   translate: -50% 0;
   width: min(720px, calc(100% - 48px));
+  pointer-events: none;
+}
+.axis-note-toggle {
+  width: 34px;
+  height: 34px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 999px;
+  pointer-events: auto;
+}
+.axis-note-toggle.is-active {
+  color: var(--color-hud-text);
+  border-color: color-mix(in srgb, var(--color-node) 56%, var(--color-hud-border));
+}
+.axis-global-note {
+  width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--color-hud-border);
   border-radius: 8px;
@@ -192,7 +211,7 @@
   line-height: 1.45;
   text-align: center;
   backdrop-filter: blur(var(--blur-hud));
-  pointer-events: none;
+  pointer-events: auto;
 }
 .loading-state,
 .empty-state, .error-state {
