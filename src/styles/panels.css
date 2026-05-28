@@ -19,6 +19,66 @@
   box-shadow: var(--shadow-hud);
   animation: panelIn var(--motion-normal) ease both;
 }
+.mixing-panel-large {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(80vw, 1280px);
+  min-width: min(920px, 100vw);
+  height: 100%;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 14px;
+  background: var(--color-hud-bg);
+  color: var(--color-hud-text);
+  border-left: 1px solid var(--color-hud-border);
+  backdrop-filter: blur(var(--blur-hud));
+  box-shadow: var(--shadow-hud);
+  animation: panelIn var(--motion-normal) ease both;
+}
+.mixing-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  min-height: 0;
+}
+.mixing-panel-head h2 {
+  margin: 0;
+  font-size: 19px;
+}
+.mixing-panel-head p {
+  margin: 5px 0 0;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.mixing-panel-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(300px, 0.36fr) minmax(420px, 0.64fr);
+  gap: 14px;
+}
+.mixing-panel-sidebar,
+.mixing-panel-main {
+  min-height: 0;
+  display: grid;
+  gap: 12px;
+}
+.mixing-panel-sidebar {
+  grid-auto-rows: max-content;
+  align-content: start;
+}
+.mixing-panel-main {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.mix-actions {
+  align-self: start;
+}
+.mix-actions .primary-button {
+  flex: 1 1 180px;
+}
 .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
 .panel-head h2 { margin: 0; font-size: 18px; }
 .panel-body { height: calc(100% - 54px); overflow: auto; display: grid; align-content: start; gap: 14px; }
@@ -57,10 +117,15 @@
 .mix-section {
   display: grid;
   gap: 10px;
+  min-height: 0;
+  align-content: start;
   padding: 12px;
   border: 1px solid color-mix(in srgb, var(--color-hud-border) 78%, transparent);
   border-radius: 10px;
   background: color-mix(in srgb, var(--color-hud-bg) 72%, transparent);
+}
+.mix-geometry-section {
+  grid-template-rows: auto minmax(0, 1fr);
 }
 .mix-section-head {
   display: flex;
@@ -105,6 +170,7 @@
   text-overflow: ellipsis;
 }
 .mix-geometry {
+  min-height: 0;
   border: 1px solid var(--color-hud-border);
   border-radius: 8px;
   background:
@@ -115,7 +181,8 @@
 .mix-geometry svg {
   display: block;
   width: 100%;
-  height: 228px;
+  height: 100%;
+  min-height: 360px;
   touch-action: none;
   cursor: grab;
   overflow: hidden;
@@ -124,16 +191,21 @@
 .mix-panel-line {
   fill: none;
   stroke: var(--color-node-playing);
-  stroke-width: 3;
+  stroke-width: 1.0;
   stroke-linejoin: round;
 }
 .mix-panel-fill {
   fill: color-mix(in srgb, var(--color-node-playing) 18%, transparent);
 }
+.mix-panel-spoke {
+  stroke: color-mix(in srgb, var(--color-node-playing) 58%, transparent);
+  stroke-width: 0.9;
+  stroke-dasharray: 4 5;
+}
 .mix-panel-anchor {
   fill: var(--color-node);
   stroke: var(--color-hud-text);
-  stroke-width: 2;
+  stroke-width: 1.0;
 }
 .mix-panel-anchor-label {
   fill: var(--color-hud-text);
@@ -146,7 +218,7 @@
 .mix-panel-point {
   fill: var(--color-node-playing);
   stroke: var(--color-hud-text);
-  stroke-width: 3;
+  stroke-width: 1.0;
 }
 .mix-weight-list div, .mix-params {
   display: grid;
@@ -217,10 +289,29 @@
   opacity: 0.55;
   filter: saturate(0.75);
 }
-.mix-form textarea.mix-input {
-  resize: vertical;
-  min-height: 76px;
-  line-height: 1.45;
+.chord-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.chord-cell {
+  display: grid;
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-input-bg) 52%, transparent);
+}
+.chord-cell span {
+  color: var(--color-hud-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.chord-cell .mix-input {
+  height: 32px;
+  padding: 6px 8px;
+  text-align: center;
+  font-weight: 800;
 }
 .segmented-control {
   display: grid;
@@ -251,4 +342,20 @@
 }
 .mix-validation.is-invalid {
   color: var(--color-bad);
+}
+@media (max-width: 1100px) {
+  .mixing-panel-large {
+    width: 100vw;
+    min-width: 0;
+  }
+  .mixing-panel-grid {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+  .mixing-panel-sidebar {
+    grid-template-rows: auto;
+  }
+  .mix-geometry svg {
+    min-height: 300px;
+  }
 }
