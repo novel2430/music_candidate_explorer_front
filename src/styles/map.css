@@ -127,7 +127,26 @@
   animation: scanSweep 2.6s linear infinite;
   pointer-events: none;
 }
-.candidate-layer { position: absolute; inset: 0; z-index: 2; }
+.mixing-map-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: visible;
+}
+.mixing-map-line {
+  fill: none;
+  stroke: var(--color-node-playing);
+  stroke-width: 2;
+  stroke-dasharray: 7 7;
+  opacity: 0.78;
+  vector-effect: non-scaling-stroke;
+}
+.mixing-map-fill {
+  fill: color-mix(in srgb, var(--color-node-playing) 22%, transparent);
+  stroke: none;
+}
+.candidate-layer { position: absolute; inset: 0; z-index: 3; }
 .candidate-dot {
   position: absolute;
   width: 11px;
@@ -152,6 +171,31 @@
 }
 .candidate-dot.is-playing { animation: dotEnter var(--motion-slow) ease both, pulse 1.2s ease-in-out infinite; }
 .candidate-dot.is-playing:not(.is-selected) { box-shadow: 0 0 0 3px rgba(136, 192, 208, 0.18), 0 0 22px var(--color-node); }
+.candidate-dot.is-mixing-selected {
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--color-node-playing) 44%, transparent),
+    0 0 24px color-mix(in srgb, var(--color-node-playing) 72%, transparent);
+}
+.candidate-dot.is-generated {
+  background: linear-gradient(135deg, var(--color-node-playing), var(--color-node-hover));
+}
+.mixing-badge {
+  position: absolute;
+  right: -12px;
+  top: -14px;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  border: 1px solid var(--color-hud-border);
+  background: var(--color-hud-bg);
+  color: var(--color-hud-text);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
 .candidate-dot.is-good { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-good) 42%, transparent), 0 0 18px var(--color-good); }
 .candidate-dot.is-bad { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-bad) 42%, transparent), 0 0 18px var(--color-bad); }
 .candidate-dot.is-interesting { box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-interesting) 42%, transparent), 0 0 18px var(--color-interesting); }

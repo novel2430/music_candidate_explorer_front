@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CandidateDots } from './CandidateDots.jsx';
 import { EndpointLabels } from './EndpointLabels.jsx';
 import { MiniMap } from './MiniMap.jsx';
+import { MixingOverlay } from './MixingOverlay.jsx';
 import { CandidateHud } from './CandidateHud.jsx';
 import { CandidateTooltip } from './CandidateTooltip.jsx';
 import { HudButton } from './HudButton.jsx';
@@ -66,6 +67,7 @@ export function MapViewport() {
         <CoordinateGrid bounds={bounds} />
         <OriginAxes bounds={bounds} />
         <SelectionRipple bounds={bounds} />
+        <MixingOverlay bounds={bounds} />
         <CandidateDots bounds={bounds} />
       </div>
       {hudVisible && <EndpointLabels />}

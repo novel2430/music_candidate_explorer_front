@@ -13,9 +13,11 @@ export function CandidateDots({ bounds }) {
     selectedCandidateId,
     hoveredCandidateId,
     playingCandidateId,
+    mixingCandidateIds,
     isPlaying,
     candidateMarks,
     selectCandidate,
+    toggleMixingCandidate,
     hoverCandidate,
   } = useExplorerStore();
 
@@ -27,9 +29,14 @@ export function CandidateDots({ bounds }) {
       {candidates.map((candidate, index) => {
         const point = worldToScreen(candidate, bounds, camera, viewport);
         const mark = candidateMarks[candidate.candidate_id];
+        const mixingIndex = mixingCandidateIds.indexOf(candidate.candidate_id);
+        const isMixing = mixingIndex >= 0;
+        const isGenerated = candidate.source?.type === 'generated_artifact';
         const classes = [
           'candidate-dot',
           selectedCandidateId === candidate.candidate_id ? 'is-selected' : '',
+          isMixing ? 'is-mixing-selected' : '',
+          isGenerated ? 'is-generated' : '',
           hoveredCandidateId === candidate.candidate_id ? 'is-hovered' : '',
           isPlaying && playingCandidateId === candidate.candidate_id ? 'is-playing' : '',
           mark ? `is-${mark}` : '',
@@ -42,12 +49,18 @@ export function CandidateDots({ bounds }) {
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => {
               event.stopPropagation();
+              if (event.ctrlKey || event.metaKey) {
+                toggleMixingCandidate(candidate.candidate_id);
+                return;
+              }
               selectCandidate(candidate.candidate_id);
             }}
             onMouseEnter={() => hoverCandidate(candidate.candidate_id)}
             onMouseLeave={() => hoverCandidate(null)}
             aria-label={uiText.candidate.ariaLabel(candidate.rank)}
-          />
+          >
+            {isMixing && <span className="mixing-badge">{mixingIndex + 1}</span>}
+          </button>
         );
       })}
     </div>

@@ -48,3 +48,185 @@
 .history-list em { color: var(--color-bad); font-style: normal; }
 .theme-options button { justify-content: start; }
 .theme-swatch { width: 30px; height: 18px; border-radius: 999px; border: 1px solid var(--color-hud-border); background: linear-gradient(90deg, var(--color-map-bg), var(--color-node), var(--color-node-playing)); }
+.panel-note {
+  margin: 0;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.mix-section {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 78%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-hud-bg) 72%, transparent);
+}
+.mix-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mix-section-head h3 {
+  margin: 0;
+  color: var(--color-hud-text);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+.mix-section-head span {
+  color: var(--color-hud-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.mix-source-list, .mix-weight-list {
+  display: grid;
+  gap: 8px;
+}
+.mix-source-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-control-bg) 58%, transparent);
+}
+.mix-source-row div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.mix-source-row small {
+  color: var(--color-hud-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mix-geometry {
+  border: 1px solid var(--color-hud-border);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--color-node) 14%, transparent), transparent 46%),
+    color-mix(in srgb, var(--color-input-bg) 72%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.mix-geometry svg {
+  display: block;
+  width: 100%;
+  height: 228px;
+  touch-action: none;
+  cursor: grab;
+}
+.mix-geometry svg:active { cursor: grabbing; }
+.mix-panel-line {
+  fill: none;
+  stroke: var(--color-node-playing);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.mix-panel-fill {
+  fill: color-mix(in srgb, var(--color-node-playing) 18%, transparent);
+}
+.mix-panel-anchor {
+  fill: var(--color-node);
+  stroke: var(--color-hud-text);
+  stroke-width: 2;
+}
+.mix-panel-point {
+  fill: var(--color-node-playing);
+  stroke: var(--color-hud-text);
+  stroke-width: 3;
+}
+.mix-weight-list div, .mix-params {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+}
+.mix-weight-list div {
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-input-bg) 52%, transparent);
+}
+.mix-weight-list strong, .mix-params dd {
+  margin: 0;
+  color: var(--color-hud-text);
+}
+.mix-params dt { color: var(--color-hud-muted); }
+.mix-form {
+  display: grid;
+  gap: 12px;
+}
+.mix-form label {
+  gap: 8px;
+  color: var(--color-hud-muted);
+  font-weight: 700;
+}
+.mix-input {
+  appearance: none;
+  color: var(--color-hud-text);
+  background:
+    linear-gradient(color-mix(in srgb, var(--color-input-bg) 92%, transparent), color-mix(in srgb, var(--color-input-bg) 92%, transparent)),
+    var(--color-map-bg);
+  border: 1px solid var(--color-control-border);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color var(--motion-fast), box-shadow var(--motion-fast), background var(--motion-fast);
+}
+.mix-input:hover {
+  border-color: color-mix(in srgb, var(--color-control-hover) 72%, var(--color-control-border));
+}
+.mix-input:focus {
+  border-color: var(--color-node-selected);
+  box-shadow: 0 0 0 3px var(--color-focus-ring), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.mix-input[type="number"] {
+  height: 38px;
+  font-weight: 800;
+}
+.mix-input[type="number"]::-webkit-outer-spin-button,
+.mix-input[type="number"]::-webkit-inner-spin-button {
+  opacity: 0.55;
+  filter: saturate(0.75);
+}
+.mix-form textarea.mix-input {
+  resize: vertical;
+  min-height: 76px;
+  line-height: 1.45;
+}
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-input-bg) 74%, transparent);
+}
+.segmented-control button {
+  min-height: 32px;
+  border-color: transparent;
+  background: transparent;
+  justify-content: center;
+  color: var(--color-hud-muted);
+  font-weight: 800;
+}
+.segmented-control .is-active {
+  border-color: var(--color-node-selected);
+  background: color-mix(in srgb, var(--color-primary-bg) 82%, var(--color-control-bg));
+  color: var(--color-hud-text);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+.mix-validation {
+  color: var(--color-good);
+  font-size: 12px;
+}
+.mix-validation.is-invalid {
+  color: var(--color-bad);
+}

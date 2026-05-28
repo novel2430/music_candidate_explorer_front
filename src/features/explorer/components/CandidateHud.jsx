@@ -15,12 +15,14 @@ export function CandidateHud() {
   const playingThis = state.isPlaying && state.playingCandidateId === selectedCandidate.candidate_id;
   const mark = state.candidateMarks[selectedCandidate.candidate_id];
   const midiUrl = selectedCandidate.midi_url ? resolveUrl(selectedCandidate.midi_url) : '#';
+  const isGenerated = selectedCandidate.source?.type === 'generated_artifact';
 
   return (
     <section className={`candidate-hud ${collapsed ? 'is-collapsed' : ''}`} onPointerDown={(event) => event.stopPropagation()}>
       <div className="hud-head">
         <div>
           <div className="hud-kicker">{uiText.candidate.title(selectedCandidate.rank)}</div>
+          {isGenerated && <div className="generated-kicker">{uiText.candidate.generatedMix}</div>}
           <SemanticTagPills tags={selectedCandidate.semantic_tags} />
         </div>
         <button title={uiText.candidate.details} onClick={() => state.setCandidateHudCollapsed(!collapsed)}>
@@ -57,6 +59,13 @@ export function CandidateHud() {
           <dt>{uiText.candidate.fields.pcValues}</dt><dd><code>{JSON.stringify(selectedCandidate.pc_values || {})}</code></dd>
           <dt>{uiText.candidate.fields.audioUrl}</dt><dd>{selectedCandidate.audio_url || '-'}</dd>
           <dt>{uiText.candidate.fields.midiUrl}</dt><dd>{selectedCandidate.midi_url || '-'}</dd>
+          {isGenerated && (
+            <>
+              <dt>{uiText.candidate.fields.parentCandidateIds}</dt><dd><code>{JSON.stringify(selectedCandidate.source?.parent_candidate_ids || selectedCandidate.parent_candidate_ids || [])}</code></dd>
+              <dt>{uiText.candidate.fields.mixId}</dt><dd>{selectedCandidate.source?.mix_id || selectedCandidate.mix_id || '-'}</dd>
+              <dt>{uiText.candidate.fields.createdByTaskId}</dt><dd>{selectedCandidate.source?.created_by_task_id || selectedCandidate.created_by_task_id || '-'}</dd>
+            </>
+          )}
         </dl>
       )}
     </section>

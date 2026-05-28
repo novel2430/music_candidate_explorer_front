@@ -1,4 +1,4 @@
-import { Bug, Eye, EyeOff, Gauge, Palette, RotateCcw, Search } from 'lucide-react';
+import { Blend, Bug, Eye, EyeOff, Gauge, Palette, RotateCcw, Search } from 'lucide-react';
 import { useState } from 'react';
 import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
@@ -9,6 +9,7 @@ export function TopBanner() {
   const { submitQuery, isSubmitting } = useExplorationActions();
   const state = useExplorerStore();
   const busy = ['queued', 'running'].includes(state.taskStatus) || isSubmitting;
+  const canMix = state.mixingCandidateIds.length >= 2;
 
   function runSearch(event) {
     event.preventDefault();
@@ -43,6 +44,7 @@ export function TopBanner() {
       <nav className="banner-actions">
         <button title={uiText.topBanner.resetView} onClick={state.resetCamera}><RotateCcw size={16} /></button>
         <button title={uiText.topBanner.toggleHud} onClick={() => state.setHudVisible(!state.hudVisible)}>{state.hudVisible ? <Eye size={16} /> : <EyeOff size={16} />}</button>
+        <button title={uiText.mixing.open} disabled={!canMix} onClick={() => state.setActivePanel('mixing')}><Blend size={16} /> {uiText.mixing.open}</button>
         <button title={uiText.topBanner.advanced} onClick={() => state.setActivePanel('advanced')}><Gauge size={16} /> {uiText.topBanner.advanced}</button>
         <button title={uiText.topBanner.theme} onClick={() => state.setActivePanel('theme')}><Palette size={16} /> {uiText.topBanner.theme}</button>
         <button title={uiText.topBanner.debug} onClick={() => state.setActivePanel('debug')}><Bug size={16} /> {uiText.topBanner.debug}</button>

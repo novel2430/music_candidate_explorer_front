@@ -2,6 +2,7 @@ import { TopBanner } from './components/TopBanner.jsx';
 import { MapArea } from './components/MapArea.jsx';
 import { AdvancedPanel } from './components/AdvancedPanel.jsx';
 import { DebugPanel } from './components/DebugPanel.jsx';
+import { MixingPanel } from './components/MixingPanel.jsx';
 import { ThemePanel } from './components/ThemePanel.jsx';
 import { useExplorerStore } from '../../store/useExplorerStore.js';
 
@@ -14,6 +15,7 @@ export function ExplorerPage() {
       <MapArea />
       {activePanel === 'advanced' && <AdvancedPanel />}
       {activePanel === 'debug' && <DebugPanel />}
+      {activePanel === 'mixing' && <MixingPanel />}
       {activePanel === 'theme' && <ThemePanel />}
     </main>
   );

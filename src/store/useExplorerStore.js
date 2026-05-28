@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { uiText } from '../config/uiText.js';
 import { DEFAULT_BASE_URL } from '../config/env.js';
 import { getDisplayAxisLabels } from '../utils/axisLabels.js';
 import { readJson, removeStorage, writeJson } from '../utils/storage.js';
@@ -53,6 +54,11 @@ const initialState = {
   isDragging: false,
 
   selectedCandidateId: null,
+  mixingCandidateIds: [],
+  mixingWeights: [],
+  isMixGenerating: false,
+  mixTaskId: null,
+  mixError: null,
   hoveredCandidateId: null,
   focusedCandidateId: null,
   selectionPulseId: 0,
@@ -129,6 +135,11 @@ export const useExplorerStore = create((set, get) => ({
       candidates: [],
       selectedPair: [],
       selectedCandidateId: null,
+      mixingCandidateIds: [],
+      mixingWeights: [],
+      isMixGenerating: false,
+      mixTaskId: null,
+      mixError: null,
       hoveredCandidateId: null,
       artifacts: [],
       artifactMetadataById: {},
@@ -183,6 +194,35 @@ export const useExplorerStore = create((set, get) => ({
     }));
     get().logUserEvent('candidate.select', { candidateId });
   },
+  toggleMixingCandidate: (candidateId) => {
+    set((state) => {
+      const exists = state.mixingCandidateIds.includes(candidateId);
+      const nextIds = exists
+        ? state.mixingCandidateIds.filter((id) => id !== candidateId)
+        : [...state.mixingCandidateIds, candidateId].slice(0, 3);
+      const nextWeights = nextIds.length ? nextIds.map(() => 1 / nextIds.length) : [];
+      return {
+        mixingCandidateIds: nextIds,
+        mixingWeights: nextWeights,
+        mixError: exists || state.mixingCandidateIds.length < 3 ? null : uiText.errors.maxMixCandidates,
+      };
+    });
+    get().logUserEvent('mixing.toggle_candidate', { candidateId });
+  },
+  removeMixingCandidate: (candidateId) => {
+    set((state) => {
+      const nextIds = state.mixingCandidateIds.filter((id) => id !== candidateId);
+      return {
+        mixingCandidateIds: nextIds,
+        mixingWeights: nextIds.length ? nextIds.map(() => 1 / nextIds.length) : [],
+        mixError: null,
+      };
+    });
+  },
+  setMixingWeights: (mixingWeights) => set({ mixingWeights }),
+  setMixGenerating: (isMixGenerating, mixTaskId = get().mixTaskId) => set({ isMixGenerating, mixTaskId }),
+  setMixError: (mixError) => set({ mixError, isMixGenerating: false }),
+  clearMixingSelection: () => set({ mixingCandidateIds: [], mixingWeights: [], mixError: null }),
   hoverCandidate: (candidateId) => {
     set({ hoveredCandidateId: candidateId });
     if (candidateId) get().logUserEvent('candidate.hover', { candidateId });
