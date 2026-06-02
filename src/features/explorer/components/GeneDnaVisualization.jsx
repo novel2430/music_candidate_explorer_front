@@ -9,6 +9,8 @@ const TOP = 54;
 const BOTTOM = 446;
 const BACKBONE_PHASE_SCALE = 0.72;
 const BACKBONE_AMPLITUDE = 100;
+const GUIDE_LEFT_END = CENTER_X - BACKBONE_AMPLITUDE - 7;
+const GUIDE_RIGHT_START = CENTER_X + BACKBONE_AMPLITUDE + 7;
 
 const clamp01 = (value) => Math.max(0, Math.min(1, Number(value) || 0));
 
@@ -33,7 +35,6 @@ function useAnimationPhase({ enabled = true, speed = 0.00072 }) {
 
   useEffect(() => {
     if (!enabled) {
-      setPhase(0);
       return undefined;
     }
 
@@ -64,8 +65,9 @@ function curveX(y, strandPhase = 0, phase = 0) {
 
 export function GeneDnaVisualization({ loci, isPlaying = false }) {
   const reducedMotion = usePrefersReducedMotion();
+  const [isHovered, setIsHovered] = useState(false);
   const phase = useAnimationPhase({
-    enabled: !reducedMotion,
+    enabled: !reducedMotion && !isHovered,
     speed: isPlaying ? 0.00115 : 0.00072,
   });
   const step = loci.length > 1 ? (BOTTOM - TOP) / (loci.length - 1) : 0;
@@ -83,6 +85,8 @@ export function GeneDnaVisualization({ loci, isPlaying = false }) {
       viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
       role="img"
       aria-label="Music genome DNA keys"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <path className="gene-dna-backbone" d={leftPath} />
       <path className="gene-dna-backbone" d={rightPath} />
@@ -124,9 +128,9 @@ export function GeneDnaVisualization({ loci, isPlaying = false }) {
             <title>{title}</title>
             <text className="gene-dna-label is-left" x={LABEL_WIDTH} y={y}>{locus.leftLabel}</text>
             <text className="gene-dna-label is-right" x={VIEWBOX.width - LABEL_WIDTH} y={y}>{locus.rightLabel}</text>
-            <line className="gene-dna-guide" x1={LABEL_WIDTH + 12} y1={y} x2={x1 - 7} y2={y} />
+            <line className="gene-dna-guide" x1={LABEL_WIDTH + 12} y1={y} x2={GUIDE_LEFT_END} y2={y} />
             <line className="gene-dna-key" x1={x1} y1={y} x2={x2} y2={y} />
-            <line className="gene-dna-guide" x1={x2 + 7} y1={y} x2={VIEWBOX.width - LABEL_WIDTH - 12} y2={y} />
+            <line className="gene-dna-guide" x1={GUIDE_RIGHT_START} y1={y} x2={VIEWBOX.width - LABEL_WIDTH - 12} y2={y} />
             <circle className="gene-dna-joint is-left" cx={x1} cy={y} r={leftRadius} opacity={leftOpacity} />
             <circle className="gene-dna-joint is-right" cx={x2} cy={y} r={rightRadius} opacity={rightOpacity} />
             <circle className="gene-dna-marker" cx={markerX} cy={y} r={markerRadius} opacity={markerOpacity} />
