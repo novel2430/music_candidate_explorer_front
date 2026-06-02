@@ -43,7 +43,7 @@ function useAnimationPhase({ enabled = true, speed = 0.00072 }) {
     function tick(time) {
       const delta = time - lastTime;
       lastTime = time;
-      setPhase((current) => (current + delta * speed) % (Math.PI * 2));
+      setPhase((current) => current + delta * speed);
       rafId = requestAnimationFrame(tick);
     }
 
