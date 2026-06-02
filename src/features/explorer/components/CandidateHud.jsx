@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Download, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
+import { ChevronDown, ChevronUp, Dna, Download, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { resolveUrl } from '../../../api/httpClient.js';
 import { uiText } from '../../../config/uiText.js';
 import { pause, setVolume, togglePlay } from '../../../services/audioController.js';
@@ -45,6 +45,7 @@ export function CandidateHud() {
         <button className={mark === 'good' ? 'mark-active good' : ''} onClick={() => state.markCandidate(selectedCandidate.candidate_id, 'good')}>{uiText.candidate.marks.good}</button>
         <button className={mark === 'bad' ? 'mark-active bad' : ''} onClick={() => state.markCandidate(selectedCandidate.candidate_id, 'bad')}>{uiText.candidate.marks.bad}</button>
         <button className={mark === 'interesting' ? 'mark-active interesting' : ''} onClick={() => state.markCandidate(selectedCandidate.candidate_id, 'interesting')}>{uiText.candidate.marks.interesting}</button>
+        <button onClick={() => state.setActivePanel('gene')} title={uiText.gene.open} aria-label={uiText.gene.open}><Dna size={16} /> {uiText.gene.button}</button>
         <a className="icon-link" href={midiUrl} download title={uiText.candidate.downloadMidi}><Download size={16} /> {uiText.candidate.midi}</a>
       </div>
 

@@ -37,6 +37,345 @@
   box-shadow: var(--shadow-hud);
   animation: panelIn var(--motion-normal) ease both;
 }
+.gene-panel-large {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(80vw, 1280px);
+  min-width: min(920px, 100vw);
+  height: 100%;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  gap: 14px;
+  overflow: auto;
+  background: var(--color-hud-bg);
+  color: var(--color-hud-text);
+  border-left: 1px solid var(--color-hud-border);
+  backdrop-filter: blur(var(--blur-hud));
+  box-shadow: var(--shadow-hud);
+  animation: panelIn var(--motion-normal) ease both;
+}
+.gene-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+}
+.gene-panel-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 19px;
+}
+.gene-panel-head p {
+  margin: 5px 0 0;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.gene-panel-head-actions {
+  display: flex;
+  gap: 8px;
+}
+.gene-profile-status {
+  margin: 7px 0 0;
+  color: var(--color-hud-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.gene-profile-status.is-loading { color: var(--color-node); }
+.gene-profile-status.is-error { color: var(--color-bad); }
+.gene-profile-status.is-loaded {
+  display: grid;
+  gap: 2px;
+  color: var(--color-good);
+}
+.gene-profile-status.is-loaded span {
+  color: var(--color-hud-muted);
+  font-size: 10px;
+}
+.gene-tags {
+  display: grid;
+  gap: 8px;
+}
+.gene-tags h3,
+.gene-section-head h3 {
+  margin: 0;
+  color: var(--color-hud-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+.gene-panel-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 0.62fr) minmax(300px, 0.38fr);
+  gap: 14px;
+}
+.gene-panel-main,
+.gene-panel-sidebar {
+  min-height: 0;
+  display: grid;
+  gap: 12px;
+}
+.gene-panel-main {
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+.gene-panel-sidebar {
+  align-content: start;
+}
+.gene-section {
+  display: grid;
+  gap: 10px;
+  min-height: 0;
+  align-content: start;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 78%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-hud-bg) 72%, transparent);
+}
+.gene-dna-section {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.gene-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.gene-section-head span {
+  color: var(--color-hud-muted);
+  font-size: 11px;
+}
+.gene-dna {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 390px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 8px;
+  background:
+    linear-gradient(color-mix(in srgb, var(--color-map-grid) 45%, transparent) 1px, transparent 1px),
+    color-mix(in srgb, var(--color-input-bg) 76%, transparent);
+  background-size: 100% 48px;
+}
+.gene-dna-backbone {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-node) 70%, transparent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gene-dna-key {
+  stroke: color-mix(in srgb, var(--color-hud-text) 58%, transparent);
+  stroke-width: 2;
+  transition: stroke var(--motion-fast), stroke-width var(--motion-fast);
+}
+.gene-dna-guide {
+  stroke: color-mix(in srgb, var(--color-hud-muted) 36%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.gene-dna-joint {
+  fill: var(--color-node);
+  stroke: var(--color-hud-text);
+  stroke-width: 0.8;
+}
+.gene-dna-marker {
+  fill: var(--color-node-playing);
+  stroke: var(--color-hud-text);
+  stroke-width: 1.4;
+  transition: r var(--motion-fast), filter var(--motion-fast);
+}
+.gene-dna-locus.is-numeric .gene-dna-marker {
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-node-playing) 72%, transparent));
+}
+.gene-dna-locus.is-summary .gene-dna-marker {
+  opacity: 0.7;
+}
+.gene-dna-label {
+  fill: var(--color-hud-muted);
+  font-size: 12px;
+  dominant-baseline: middle;
+}
+.gene-dna-label.is-left { text-anchor: end; }
+.gene-dna-label.is-right { text-anchor: start; }
+.gene-dna-locus:hover .gene-dna-key {
+  stroke: var(--color-node-playing);
+  stroke-width: 3;
+}
+.gene-dna-locus:hover .gene-dna-marker {
+  r: 7.5px;
+  filter: drop-shadow(0 0 6px var(--color-node-playing));
+}
+.gene-dna.is-playing .gene-dna-marker {
+  animation: geneMarkerPulse 1.8s ease-in-out infinite;
+}
+.gene-loci-list {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  max-height: min(58vh, 590px);
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+  scrollbar-color: color-mix(in srgb, var(--color-node) 56%, var(--color-hud-border)) color-mix(in srgb, var(--color-input-bg) 72%, transparent);
+  scrollbar-width: thin;
+}
+.gene-loci-list::-webkit-scrollbar {
+  width: 8px;
+}
+.gene-loci-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-input-bg) 72%, transparent);
+}
+.gene-loci-list::-webkit-scrollbar-thumb {
+  border: 2px solid color-mix(in srgb, var(--color-input-bg) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-node) 56%, var(--color-hud-border));
+}
+.gene-loci-list::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-node) 78%, var(--color-hud-border));
+}
+.gene-loci-section {
+  min-height: 0;
+}
+.gene-loci-list article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 10px;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-input-bg) 52%, transparent);
+}
+.gene-locus-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+.gene-locus-head strong {
+  min-width: 0;
+}
+.gene-loci-list strong {
+  color: var(--color-hud-text);
+  font-size: 12px;
+}
+.gene-loci-list small {
+  color: var(--color-hud-muted);
+  font-size: 10px;
+}
+.gene-loci-list article > span {
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  text-align: right;
+}
+.gene-locus-source {
+  flex: 0 0 auto;
+  width: max-content;
+  padding: 1px 5px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 999px;
+}
+.gene-locus-source.is-numeric {
+  border-color: color-mix(in srgb, var(--color-node) 54%, var(--color-hud-border));
+  color: var(--color-node);
+}
+.gene-locus-source.is-summary {
+  color: var(--color-hud-muted);
+}
+.gene-locus-raw {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+.gene-locus-meter {
+  grid-column: 1 / -1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-hud-text) 12%, transparent);
+}
+.gene-locus-meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-node-playing);
+}
+.gene-harmony-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+}
+.gene-harmony-chain span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.gene-harmony-chain strong {
+  color: var(--color-hud-text);
+  font-size: 13px;
+}
+.gene-harmony-chain i,
+.gene-harmony-chain small {
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  font-style: normal;
+}
+.gene-harmony-meta {
+  margin: 0;
+  color: var(--color-hud-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.gene-bar-chords {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+  gap: 7px;
+}
+.gene-bar-chords span {
+  display: grid;
+  gap: 3px;
+  padding: 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-input-bg) 48%, transparent);
+}
+.gene-bar-chords small {
+  color: var(--color-hud-muted);
+  font-size: 10px;
+}
+.gene-bar-chords strong {
+  color: var(--color-hud-text);
+  font-size: 12px;
+}
+.gene-basic-card {
+  gap: 6px;
+}
+.gene-warnings {
+  color: var(--color-bad);
+  font-size: 10px;
+}
+.gene-feature-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  color: var(--color-hud-muted);
+  font-size: 11px;
+}
+.gene-feature-row strong {
+  color: var(--color-hud-text);
+  font-size: 11px;
+  text-align: right;
+}
+@keyframes geneMarkerPulse {
+  0%, 100% { opacity: 0.82; }
+  50% { opacity: 1; filter: drop-shadow(0 0 5px var(--color-node-playing)); }
+}
 .mixing-panel-head {
   display: flex;
   justify-content: space-between;
@@ -344,11 +683,13 @@
   color: var(--color-bad);
 }
 @media (max-width: 1100px) {
-  .mixing-panel-large {
+  .mixing-panel-large,
+  .gene-panel-large {
     width: 100vw;
     min-width: 0;
   }
-  .mixing-panel-grid {
+  .mixing-panel-grid,
+  .gene-panel-grid {
     grid-template-columns: 1fr;
     overflow: auto;
   }
@@ -357,5 +698,8 @@
   }
   .mix-geometry svg {
     min-height: 300px;
+  }
+  .gene-dna {
+    min-height: 330px;
   }
 }

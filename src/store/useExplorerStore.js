@@ -43,6 +43,9 @@ const initialState = {
   artifacts: [],
   artifactMetadataById: {},
   artifactContentById: {},
+  geneProfilesById: {},
+  geneProfileStatusById: {},
+  geneProfileErrorById: {},
 
   cameraX: 0,
   cameraY: 0,
@@ -144,6 +147,9 @@ export const useExplorerStore = create((set, get) => ({
       artifacts: [],
       artifactMetadataById: {},
       artifactContentById: {},
+      geneProfilesById: {},
+      geneProfileStatusById: {},
+      geneProfileErrorById: {},
     });
   },
   setWorkspace: (workspaceId) => set({ workspaceId }),
@@ -168,6 +174,9 @@ export const useExplorerStore = create((set, get) => ({
       cameraY: 0,
       zoom: 5,
       selectedCandidateId: space?.candidates?.[0]?.candidate_id || null,
+      geneProfilesById: {},
+      geneProfileStatusById: {},
+      geneProfileErrorById: {},
     }),
 
   setViewportSize: (viewportWidth, viewportHeight) =>
@@ -277,6 +286,22 @@ export const useExplorerStore = create((set, get) => ({
     set((state) => ({ artifactMetadataById: { ...state.artifactMetadataById, [artifactId]: metadata } })),
   setArtifactContent: (artifactId, content) =>
     set((state) => ({ artifactContentById: { ...state.artifactContentById, [artifactId]: content } })),
+  setGeneProfileLoading: (geneProfileId) =>
+    set((state) => ({
+      geneProfileStatusById: { ...state.geneProfileStatusById, [geneProfileId]: 'loading' },
+      geneProfileErrorById: { ...state.geneProfileErrorById, [geneProfileId]: null },
+    })),
+  setGeneProfileLoaded: (geneProfileId, profile) =>
+    set((state) => ({
+      geneProfilesById: { ...state.geneProfilesById, [geneProfileId]: profile },
+      geneProfileStatusById: { ...state.geneProfileStatusById, [geneProfileId]: 'loaded' },
+      geneProfileErrorById: { ...state.geneProfileErrorById, [geneProfileId]: null },
+    })),
+  setGeneProfileError: (geneProfileId, error) =>
+    set((state) => ({
+      geneProfileStatusById: { ...state.geneProfileStatusById, [geneProfileId]: 'error' },
+      geneProfileErrorById: { ...state.geneProfileErrorById, [geneProfileId]: error },
+    })),
 
   resetLocalState: () => {
     Object.values(STORAGE_KEYS).forEach(removeStorage);
