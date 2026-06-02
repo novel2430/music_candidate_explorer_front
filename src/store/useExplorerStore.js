@@ -68,7 +68,7 @@ const initialState = {
   isPlaying: false,
   currentTime: 0,
   duration: 0,
-  volume: 0.85,
+  volume: 1,
   audioError: null,
 
   hudVisible: true,

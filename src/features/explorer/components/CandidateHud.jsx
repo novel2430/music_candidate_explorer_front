@@ -1,7 +1,7 @@
-import { ChevronDown, ChevronUp, Download, Pause, Play, SkipBack, SkipForward } from 'lucide-react';
+import { ChevronDown, ChevronUp, Download, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { resolveUrl } from '../../../api/httpClient.js';
 import { uiText } from '../../../config/uiText.js';
-import { pause, togglePlay } from '../../../services/audioController.js';
+import { pause, setVolume, togglePlay } from '../../../services/audioController.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { formatTime } from '../../../utils/formatters.js';
 import { useCandidateSelection } from '../hooks/useCandidateSelection.js';
@@ -16,6 +16,12 @@ export function CandidateHud() {
   const mark = state.candidateMarks[selectedCandidate.candidate_id];
   const midiUrl = selectedCandidate.midi_url ? resolveUrl(selectedCandidate.midi_url) : '#';
   const isGenerated = selectedCandidate.source?.type === 'generated_artifact';
+  const volumePercent = Math.round(state.volume * 100);
+  const VolumeIcon = volumePercent === 0 ? VolumeX : Volume2;
+
+  function updateVolume(value) {
+    setVolume(Number(value) / 100);
+  }
 
   return (
     <section className={`candidate-hud ${collapsed ? 'is-collapsed' : ''}`} onPointerDown={(event) => event.stopPropagation()}>
@@ -46,6 +52,22 @@ export function CandidateHud() {
         <span>{formatTime(state.currentTime)}</span>
         <div><span style={{ width: `${state.duration ? (state.currentTime / state.duration) * 100 : 0}%` }} /></div>
         <span>{formatTime(state.duration)}</span>
+      </div>
+
+      <div className="candidate-volume">
+        <VolumeIcon size={16} />
+        <input
+          className="candidate-volume-slider"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value={volumePercent}
+          onChange={(event) => updateVolume(event.target.value)}
+          aria-label={uiText.candidate.volume}
+          style={{ '--volume-level': `${volumePercent}%` }}
+        />
+        <span>{volumePercent}%</span>
       </div>
       {state.audioError && <div className="audio-error">{state.audioError}</div>}
 

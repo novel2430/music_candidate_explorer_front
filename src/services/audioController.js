@@ -60,6 +60,7 @@ export function togglePlay(candidate) {
 }
 
 export function setVolume(volume) {
-  if (audio) audio.volume = volume;
-  useExplorerStore.getState().setAudioState({ volume });
+  const safeVolume = Math.min(1, Math.max(0, Number(volume) || 0));
+  if (audio) audio.volume = safeVolume;
+  useExplorerStore.getState().setAudioState({ volume: safeVolume });
 }

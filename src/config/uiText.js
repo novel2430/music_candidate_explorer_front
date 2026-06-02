@@ -46,6 +46,7 @@ export const uiText = {
     previous: 'Previous',
     next: 'Next',
     playPause: 'Play or pause',
+    volume: 'Playback volume',
     marks: {
       good: '👍',
       bad: '👎',
