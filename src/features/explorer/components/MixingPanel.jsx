@@ -4,7 +4,7 @@ import { uiText } from '../../../config/uiText.js';
 import { generateCandidateMix } from '../../../services/mixingWorkflow.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { validateChordProgression } from '../../../utils/chords.js';
-import { buildExpectedGenomeLoci, buildMixingParentGenomes } from '../../../utils/mixingGenome.js';
+import { MIX_PARENT_NAMES, buildExpectedGenomeLoci, buildMixingParentGenomes } from '../../../utils/mixingGenome.js';
 import { computeBarycentricWeights, computeLineWeights, pointFromWeights } from '../../../utils/mixingGeometry.js';
 import { ExpectedGenomePreview } from './mixing/ExpectedGenomePreview.jsx';
 import { ParentGenomeCard } from './mixing/ParentGenomeCard.jsx';
@@ -22,7 +22,9 @@ function getSvgPoint(event) {
 }
 
 function candidateGeometryLabel(candidate, fallbackIndex) {
-  return candidate?.rank ? `#${candidate.rank}` : `#${fallbackIndex + 1}`;
+  const parentName = MIX_PARENT_NAMES[fallbackIndex] || String(fallbackIndex + 1);
+  const candidateName = candidate?.rank ? `#${candidate.rank}` : `#${fallbackIndex + 1}`;
+  return `${parentName} · ${candidateName}`;
 }
 
 function fallbackAnchors(count) {
