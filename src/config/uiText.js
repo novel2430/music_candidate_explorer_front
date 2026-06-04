@@ -86,6 +86,10 @@ export const uiText = {
     chordProgression: '和弦行进（用逗号分隔，每小节一个）',
     chordValid: '和弦行进可用。',
     bpmError: 'BPM 需要在 40 到 240 之间。',
+    geneSynthesisTitle: 'Gene Synthesis',
+    expectedGenomeTitle: 'Expected Child Genome',
+    harmonySourcesTitle: 'Harmony Sources',
+    harmonyPreviewHint: 'Harmony is sequence-based and will be resolved during generation.',
   },
   gene: {
     button: 'Gene',

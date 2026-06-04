@@ -1,11 +1,13 @@
-import { Pause, Play, Trash2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { X } from 'lucide-react';
 import { uiText } from '../../../config/uiText.js';
-import { pause, togglePlay } from '../../../services/audioController.js';
 import { generateCandidateMix } from '../../../services/mixingWorkflow.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { validateChordProgression } from '../../../utils/chords.js';
+import { buildExpectedGenomeLoci, buildMixingParentGenomes } from '../../../utils/mixingGenome.js';
 import { computeBarycentricWeights, computeLineWeights, pointFromWeights } from '../../../utils/mixingGeometry.js';
+import { ExpectedGenomePreview } from './mixing/ExpectedGenomePreview.jsx';
+import { ParentGenomeCard } from './mixing/ParentGenomeCard.jsx';
 
 const LINE_ANCHORS = [{ x: 42, y: 110 }, { x: 278, y: 110 }];
 const TRIANGLE_ANCHORS = [{ x: 160, y: 34 }, { x: 44, y: 206 }, { x: 276, y: 206 }];
@@ -17,10 +19,6 @@ function getSvgPoint(event) {
     x: ((event.clientX - rect.left) / rect.width) * 320,
     y: ((event.clientY - rect.top) / rect.height) * 240,
   };
-}
-
-function candidateLabel(candidate) {
-  return candidate?.rank ? `#${candidate.rank}` : candidate?.candidate_id;
 }
 
 function candidateGeometryLabel(candidate, fallbackIndex) {
@@ -73,6 +71,7 @@ export function MixingPanel() {
   const [targetBpm, setTargetBpm] = useState(100);
   const [chords, setChords] = useState(['C', 'Am', 'F', 'G']);
   const [geometryZoom, setGeometryZoom] = useState(1);
+  const [isAdjustingWeights, setIsAdjustingWeights] = useState(false);
   const state = useExplorerStore();
   const selectedCandidates = useMemo(
     () => state.mixingCandidateIds
@@ -83,6 +82,20 @@ export function MixingPanel() {
   const weights = state.mixingWeights.length === selectedCandidates.length
     ? state.mixingWeights
     : selectedCandidates.map(() => 1 / Math.max(selectedCandidates.length, 1));
+  const parentGenomes = useMemo(
+    () => buildMixingParentGenomes({
+      parents: selectedCandidates,
+      weights,
+      currentSpace: state.currentSpace,
+      candidates: state.candidates,
+      profilesById: state.geneProfilesById,
+    }),
+    [selectedCandidates, weights, state.currentSpace, state.candidates, state.geneProfilesById],
+  );
+  const expectedLoci = useMemo(
+    () => buildExpectedGenomeLoci({ parentGenomes, weights }),
+    [parentGenomes, weights],
+  );
   const geometryAnchors = useMemo(() => mapCandidatesToPanelAnchors(selectedCandidates), [selectedCandidates]);
   const geometryCenter = { x: GEOMETRY_VIEWBOX.width / 2, y: GEOMETRY_VIEWBOX.height / 2 };
   const visibleAnchors = geometryAnchors.map((point) => ({
@@ -118,16 +131,15 @@ export function MixingPanel() {
 
   function startDrag(event) {
     event.currentTarget.setPointerCapture(event.pointerId);
+    setIsAdjustingWeights(true);
     updateWeights(event);
   }
 
-  function updateWeightPercent(index, value) {
-    const next = weights.map((weight) => weight * 100);
-    next[index] = Number(value);
-    const normalized = next.map((weight) => (Number.isFinite(weight) ? Math.max(0, weight) : 0));
-    const sum = normalized.reduce((total, weight) => total + weight, 0);
-    if (sum <= 0) return;
-    state.setMixingWeights(normalized.map((weight) => weight / sum));
+  function stopDrag(event) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setIsAdjustingWeights(false);
   }
 
   function zoomGeometry(event) {
@@ -156,63 +168,18 @@ export function MixingPanel() {
                 <h3>{uiText.mixing.sources}</h3>
               </div>
               <div className="mix-source-list">
-                {selectedCandidates.map((candidate, index) => {
-                  const playingThis = state.isPlaying && state.playingCandidateId === candidate.candidate_id;
-                  return (
-                    <article key={candidate.candidate_id} className="mix-source-row">
-                      <div>
-                        <strong>{candidateLabel(candidate)}</strong>
-                        <small>{candidate.candidate_id}</small>
-                      </div>
-                      <span>{Math.round((weights[index] || 0) * 100)}%</span>
-                      <button title={uiText.candidate.playPause} onClick={() => (playingThis ? pause() : togglePlay(candidate))}>
-                        {playingThis ? <Pause size={15} /> : <Play size={15} />}
-                      </button>
-                      <button title={uiText.mixing.remove} onClick={() => state.removeMixingCandidate(candidate.candidate_id)}><Trash2 size={15} /></button>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className="mix-section">
-              <div className="mix-section-head">
-                <h3>{uiText.mixing.settings}</h3>
-              </div>
-              <div className="mix-form">
-                <label>
-                  {uiText.mixing.outputBars}
-                  <div className="segmented-control">
-                    {[4, 8, 16].map((value) => (
-                      <button
-                        className={outputBars === value ? 'is-active' : ''}
-                        type="button"
-                        key={value}
-                        onClick={() => updateOutputBars(value)}
-                      >
-                        {value}
-                      </button>
-                    ))}
-                  </div>
-                </label>
-                <label>
-                  {uiText.mixing.targetBpm}
-                  <input className="mix-input" type="number" min="40" max="240" value={targetBpm} onChange={(event) => setTargetBpm(event.target.value)} />
-                </label>
-                <label>
-                  {uiText.mixing.chordProgression}
-                  <div className="chord-grid">
-                    {chords.map((chord, index) => (
-                      <label className="chord-cell" key={index}>
-                        <span>{index + 1}</span>
-                        <input className="mix-input" value={chord} onChange={(event) => updateChord(index, event.target.value)} />
-                      </label>
-                    ))}
-                  </div>
-                </label>
-                <small className={chordValidation.error || bpmError ? 'mix-validation is-invalid' : 'mix-validation'}>
-                  {chordValidation.error || bpmError || uiText.mixing.chordValid}
-                </small>
+                {parentGenomes.map((parentGenome) => (
+                  <ParentGenomeCard
+                    key={parentGenome.candidate.candidate_id}
+                    parentGenome={parentGenome}
+                    isPlaying={state.isPlaying && state.playingCandidateId === parentGenome.candidate.candidate_id}
+                    onOpenGene={() => {
+                      state.selectCandidate(parentGenome.candidate.candidate_id);
+                      state.setActivePanel('gene');
+                    }}
+                    onRemove={() => state.removeMixingCandidate(parentGenome.candidate.candidate_id)}
+                  />
+                ))}
               </div>
             </section>
 
@@ -247,6 +214,9 @@ export function MixingPanel() {
                   onPointerMove={(event) => {
                     if (event.buttons === 1) updateWeights(event);
                   }}
+                  onPointerUp={stopDrag}
+                  onPointerCancel={stopDrag}
+                  onPointerLeave={() => setIsAdjustingWeights(false)}
                 >
                   {selectedCandidates.length === 3 ? (
                     <>
@@ -285,31 +255,56 @@ export function MixingPanel() {
               </div>
             </section>
 
-            <section className="mix-section">
-              <div className="mix-section-head">
-                <h3>{uiText.mixing.weights}</h3>
-              </div>
-              <div className="mix-weight-list">
-                {selectedCandidates.map((candidate, index) => (
-                  <div key={candidate.candidate_id}>
-                    <span>{candidateLabel(candidate)}</span>
-                    <label className="mix-weight-input">
-                      <input
-                        className="mix-input"
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={Math.round((weights[index] || 0) * 100)}
-                        onChange={(event) => updateWeightPercent(index, event.target.value)}
-                      />
-                      <span>%</span>
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </section>
           </div>
+
+          <div className="mixing-panel-synthesis">
+            <ExpectedGenomePreview
+              parentGenomes={parentGenomes}
+              expectedLoci={expectedLoci}
+              isActive={isAdjustingWeights}
+            />
+          </div>
+
+          <section className="mix-section mix-settings-section">
+            <div className="mix-section-head">
+              <h3>{uiText.mixing.settings}</h3>
+            </div>
+            <div className="mix-form">
+              <label>
+                {uiText.mixing.outputBars}
+                <div className="segmented-control">
+                  {[4, 8, 16].map((value) => (
+                    <button
+                      className={outputBars === value ? 'is-active' : ''}
+                      type="button"
+                      key={value}
+                      onClick={() => updateOutputBars(value)}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              </label>
+              <label>
+                {uiText.mixing.targetBpm}
+                <input className="mix-input" type="number" min="40" max="240" value={targetBpm} onChange={(event) => setTargetBpm(event.target.value)} />
+              </label>
+              <label>
+                {uiText.mixing.chordProgression}
+                <div className="chord-grid">
+                  {chords.map((chord, index) => (
+                    <label className="chord-cell" key={index}>
+                      <span>{index + 1}</span>
+                      <input className="mix-input" value={chord} onChange={(event) => updateChord(index, event.target.value)} />
+                    </label>
+                  ))}
+                </div>
+              </label>
+              <small className={chordValidation.error || bpmError ? 'mix-validation is-invalid' : 'mix-validation'}>
+                {chordValidation.error || bpmError || uiText.mixing.chordValid}
+              </small>
+            </div>
+          </section>
         </div>
       </aside>
     </div>

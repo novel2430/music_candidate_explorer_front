@@ -406,21 +406,35 @@
 .mixing-panel-grid {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(300px, 0.36fr) minmax(420px, 0.64fr);
+  grid-template-columns: minmax(280px, 0.3fr) minmax(360px, 0.36fr) minmax(320px, 0.34fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   gap: 14px;
 }
 .mixing-panel-sidebar,
-.mixing-panel-main {
+.mixing-panel-main,
+.mixing-panel-synthesis {
   min-height: 0;
   display: grid;
   gap: 12px;
 }
 .mixing-panel-sidebar {
+  grid-row: 1 / 3;
   grid-auto-rows: max-content;
   align-content: start;
 }
 .mixing-panel-main {
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-rows: minmax(0, 1fr);
+}
+.mixing-panel-synthesis {
+  grid-column: 3;
+  grid-row: 1;
+  align-content: start;
+}
+.mix-settings-section {
+  grid-column: 2 / 4;
+  grid-row: 2;
 }
 .mix-actions {
   align-self: start;
@@ -518,6 +532,199 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.mix-parent-card {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-control-bg) 56%, transparent);
+}
+.mix-parent-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+.mix-parent-head div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.mix-parent-head strong {
+  color: var(--color-hud-text);
+  font-size: 13px;
+}
+.mix-parent-head small {
+  color: var(--color-hud-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mix-parent-head > span {
+  color: var(--color-node-playing);
+  font-size: 13px;
+  font-weight: 800;
+}
+.mix-parent-metrics {
+  display: grid;
+  gap: 6px;
+}
+.mix-parent-metrics div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 6px 8px;
+  align-items: center;
+}
+.mix-parent-metrics span,
+.mix-parent-metrics strong {
+  font-size: 11px;
+}
+.mix-parent-metrics span {
+  color: var(--color-hud-muted);
+}
+.mix-parent-metrics strong {
+  color: var(--color-hud-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mix-parent-metrics i {
+  grid-column: 1 / -1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-hud-text) 12%, transparent);
+}
+.mix-parent-metrics b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--color-node-playing) 82%, var(--color-node));
+}
+.mix-parent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mix-parent-actions button {
+  min-height: 30px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+.mix-synthesis {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-node) 28%, var(--color-hud-border));
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 62% 28%, color-mix(in srgb, var(--color-node-playing) 12%, transparent), transparent 38%),
+    color-mix(in srgb, var(--color-hud-bg) 72%, transparent);
+}
+.mix-synthesis-svg {
+  width: 100%;
+  height: auto;
+  min-height: 230px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-input-bg) 72%, transparent);
+}
+.mix-synthesis-flow {
+  fill: none;
+  stroke: var(--color-node);
+  stroke-width: var(--flow-width);
+  opacity: var(--flow-opacity);
+  stroke-linecap: round;
+  stroke-dasharray: 7 9;
+  animation: mixSynthesisFlow 1.8s linear infinite;
+}
+.mix-synthesis.is-active .mix-synthesis-flow {
+  stroke: var(--color-node-playing);
+  animation-duration: 900ms;
+}
+.mix-synthesis-parent-node circle {
+  fill: var(--color-node);
+  stroke: var(--color-hud-text);
+  stroke-width: 0.8;
+  opacity: 0.85;
+}
+.mix-synthesis-parent-node text {
+  fill: var(--color-hud-muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+.mix-synthesis-backbone {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-node) 72%, transparent);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+.mix-synthesis-locus line {
+  stroke: color-mix(in srgb, var(--color-hud-text) 52%, transparent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transition: stroke var(--motion-fast), stroke-width var(--motion-fast);
+}
+.mix-synthesis-locus:hover line {
+  stroke: var(--color-node-playing);
+  stroke-width: 2.4;
+}
+.mix-synthesis-joint {
+  fill: var(--color-node);
+  stroke: var(--color-hud-text);
+  stroke-width: 0.6;
+}
+.mix-synthesis-marker {
+  fill: var(--color-node-playing);
+  stroke: var(--color-hud-text);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-node-playing) 72%, transparent));
+  transition: cx var(--motion-normal);
+}
+.mix-synthesis-contributions {
+  display: grid;
+  gap: 6px;
+}
+.mix-synthesis-contributions div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 66%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--color-input-bg) 48%, transparent);
+}
+.mix-synthesis-contributions span,
+.mix-harmony-sources p,
+.mix-harmony-sources small {
+  color: var(--color-hud-muted);
+  font-size: 11px;
+}
+.mix-synthesis-contributions strong,
+.mix-harmony-sources strong {
+  color: var(--color-hud-text);
+  font-size: 11px;
+}
+.mix-harmony-sources {
+  display: grid;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+}
+.mix-harmony-sources h4 {
+  margin: 0;
+  color: var(--color-hud-text);
+  font-size: 12px;
+}
+.mix-harmony-sources p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@keyframes mixSynthesisFlow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -32; }
+}
 .mix-geometry {
   min-height: 0;
   border: 1px solid var(--color-hud-border);
@@ -605,6 +812,13 @@
 .mix-form {
   display: grid;
   gap: 12px;
+}
+.mix-settings-section .mix-form {
+  grid-template-columns: minmax(140px, 0.7fr) minmax(110px, 0.45fr) minmax(280px, 1.6fr);
+  align-items: start;
+}
+.mix-settings-section .mix-validation {
+  grid-column: 1 / -1;
 }
 .mix-form label {
   gap: 8px;
@@ -701,15 +915,29 @@
   .mixing-panel-grid,
   .gene-panel-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
     overflow: auto;
+  }
+  .mixing-panel-sidebar,
+  .mixing-panel-main,
+  .mixing-panel-synthesis,
+  .mix-settings-section {
+    grid-column: auto;
+    grid-row: auto;
   }
   .mixing-panel-sidebar {
     grid-template-rows: auto;
+  }
+  .mixing-panel-synthesis {
+    align-content: start;
   }
   .mix-geometry svg {
     min-height: 300px;
   }
   .gene-dna {
     min-height: 330px;
+  }
+  .mix-settings-section .mix-form {
+    grid-template-columns: 1fr;
   }
 }
