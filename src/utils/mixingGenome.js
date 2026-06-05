@@ -1,4 +1,5 @@
 import { buildCandidateGeneLoci } from './geneProfile.js';
+import { chordListForCandidate } from './lineageChords.js';
 
 export const MIX_PARENT_NAMES = ['A', 'B', 'C'];
 export const MIX_SYNTHESIS_LOCUS_IDS = ['x-axis', 'y-axis', 'density', 'rhythm_activity', 'dynamic_level', 'register', 'polyphony'];
@@ -77,22 +78,11 @@ export function computeLocusContributions({ parentLociEntries, expectedValue }) 
   return { dominantType: 'balanced', label: 'balanced', dominantParents: scores.map((entry) => entry.name), scores };
 }
 
-function chordSymbol(chord) {
-  if (typeof chord === 'string') return chord;
-  return chord?.display_symbol || chord?.simple_symbol || chord?.symbol || chord?.chord || null;
+export function chordListFromCandidate(candidate, profile, lineages = []) {
+  return chordListForCandidate({ candidate, profile, lineages });
 }
 
-export function chordListFromCandidate(candidate, profile) {
-  const harmony = profile?.features?.harmony;
-  const source = harmony?.bar_progression?.length
-    ? harmony.bar_progression
-    : profile?.summary?.main_chords?.length
-      ? profile.summary.main_chords
-      : candidate?.music_summary?.main_chords;
-  return (Array.isArray(source) ? source : source ? [source] : []).map(chordSymbol).filter(Boolean);
-}
-
-export function buildMixingParentGenomes({ parents, weights, currentSpace, candidates, profilesById }) {
+export function buildMixingParentGenomes({ parents, weights, currentSpace, candidates, profilesById, lineages = [] }) {
   const normalizedWeights = normalizeMixWeights(weights, parents.length);
   return parents.map((candidate, index) => {
     const profile = candidate?.gene_profile_id ? profilesById?.[candidate.gene_profile_id] : null;
@@ -103,7 +93,7 @@ export function buildMixingParentGenomes({ parents, weights, currentSpace, candi
       weight: normalizedWeights[index] || 0,
       profileStatus: candidate?.gene_profile_id && profile ? 'loaded' : 'summary',
       loci: buildCandidateGeneLoci(candidate, currentSpace, candidates, profile),
-      chords: chordListFromCandidate(candidate, profile),
+      chords: chordListFromCandidate(candidate, profile, lineages),
     };
   });
 }

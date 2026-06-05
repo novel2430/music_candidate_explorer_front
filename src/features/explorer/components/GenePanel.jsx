@@ -5,6 +5,7 @@ import { uiText } from '../../../config/uiText.js';
 import { pause, togglePlay } from '../../../services/audioController.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
 import { buildCandidateGeneLoci, formatProfileNumber } from '../../../utils/geneProfile.js';
+import { chordList, chordListForCandidate, userChordProgressionForCandidate } from '../../../utils/lineageChords.js';
 import { GeneDnaVisualization } from './GeneDnaVisualization.jsx';
 import { SemanticTagPills } from './SemanticTagPills.jsx';
 
@@ -21,15 +22,6 @@ function displayValue(value) {
   if (typeof value === 'boolean') return String(value);
   if (typeof value === 'number') return String(formatProfileNumber(value));
   return value ?? '-';
-}
-
-function chordSymbol(chord) {
-  if (typeof chord === 'string') return chord;
-  return chord?.display_symbol || chord?.simple_symbol || chord?.symbol || chord?.chord || null;
-}
-
-function chordList(value) {
-  return (Array.isArray(value) ? value : value ? [value] : []).map(chordSymbol).filter(Boolean);
 }
 
 function ProfileStatus({ geneProfileId, profile, status, error }) {
@@ -101,12 +93,9 @@ export function GenePanel() {
   const loci = buildCandidateGeneLoci(candidate, state.currentSpace, state.candidates, profile);
   const playingThis = state.isPlaying && state.playingCandidateId === candidate.candidate_id;
   const harmony = profile?.features?.harmony;
-  const chords = chordList(harmony?.bar_progression).length
-    ? chordList(harmony.bar_progression)
-    : chordList(profile?.summary?.main_chords).length
-      ? chordList(profile.summary.main_chords)
-      : chordList(candidate.music_summary?.main_chords);
-  const barChords = (harmony?.bar_chords || []).slice(0, 8).map(chordSymbol);
+  const userChords = userChordProgressionForCandidate(candidate.candidate_id, state.creativeLineages);
+  const chords = chordListForCandidate({ candidate, profile, lineages: state.creativeLineages });
+  const barChords = userChords.length ? [] : chordList(harmony?.bar_chords).slice(0, 8);
 
   return (
     <div className="panel-backdrop" onMouseDown={() => state.setActivePanel(null)}>
@@ -138,7 +127,7 @@ export function GenePanel() {
               <div className="gene-harmony-chain">
                 {chords.length ? chords.map((chord, index) => <span key={`${chord}-${index}`}><strong>{chord}</strong>{index < chords.length - 1 && <i>→</i>}</span>) : <small>{uiText.gene.noChords}</small>}
               </div>
-              {harmony && <p className="gene-harmony-meta">provider: {harmony.provider || '-'} · status: {harmony.status || '-'} · unique chords: {harmony.unique_chord_count ?? '-'} · unknown: {harmony.unknown_chord_ratio != null ? `${formatProfileNumber(harmony.unknown_chord_ratio * 100)}%` : '-'}</p>}
+              {userChords.length ? <p className="gene-harmony-meta">source: mix settings chord progression</p> : harmony && <p className="gene-harmony-meta">provider: {harmony.provider || '-'} · status: {harmony.status || '-'} · unique chords: {harmony.unique_chord_count ?? '-'} · unknown: {harmony.unknown_chord_ratio != null ? `${formatProfileNumber(harmony.unknown_chord_ratio * 100)}%` : '-'}</p>}
               {!!barChords.length && <div className="gene-bar-chords">{barChords.map((chord, index) => <span key={`${chord}-${index}`}><small>Bar {index + 1}</small><strong>{chord || '-'}</strong></span>)}</div>}
             </section>
           </div>

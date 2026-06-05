@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { uiText } from '../../../config/uiText.js';
 import { pause, togglePlay } from '../../../services/audioController.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
+import { chordSummaryForCandidate } from '../../../utils/lineageChords.js';
 
 function shortCandidateId(candidateId) {
   return candidateId ? String(candidateId).slice(0, 8) : '-';
@@ -12,25 +13,14 @@ function candidateLabel(candidate) {
   return candidate?.rank != null ? `Candidate #${candidate.rank}` : `Candidate ${shortCandidateId(candidate?.candidate_id)}`;
 }
 
-function chordSymbol(chord) {
-  if (typeof chord === 'string') return chord;
-  return chord?.display_symbol || chord?.simple_symbol || chord?.symbol || chord?.chord || null;
-}
-
-function chordSummary(candidate) {
-  const chords = candidate?.music_summary?.main_chords;
-  const list = (Array.isArray(chords) ? chords : chords ? [chords] : []).map(chordSymbol).filter(Boolean);
-  return list.slice(0, 4).join(' - ');
-}
-
-function summaryRows(candidate) {
+function summaryRows(candidate, lineages = []) {
   const summary = candidate?.music_summary || {};
   const rows = [
     ['Density', summary.density],
     ['Register', summary.register],
     ['Rhythm', summary.rhythm_activity],
     ['Dynamic', summary.dynamic_level],
-    ['Chords', chordSummary(candidate)],
+    ['Chords', chordSummaryForCandidate({ candidate, lineages })],
   ];
   return rows.filter(([, value]) => value);
 }
@@ -43,10 +33,10 @@ function markBadges(sectionKey, mark, isInMix) {
   return badges;
 }
 
-function BasketCard({ candidate, sectionKey, isInMix, isPlaying, isSelected, onSelect, onTogglePlay, onToggleMix, onRemoveMark }) {
+function BasketCard({ candidate, sectionKey, lineages, isInMix, isPlaying, isSelected, onSelect, onTogglePlay, onToggleMix, onRemoveMark }) {
   const generated = candidate?.source?.type === 'generated_artifact';
   const badges = markBadges(sectionKey, candidate?.mark, isInMix);
-  const rows = summaryRows(candidate);
+  const rows = summaryRows(candidate, lineages);
 
   return (
     <article
@@ -233,6 +223,7 @@ export function CreativeBasketPanel() {
                       key={`${activeSection.key}-${candidate.candidate_id}`}
                       candidate={candidate}
                       sectionKey={activeSection.key}
+                      lineages={state.creativeLineages}
                       isInMix={isInMix}
                       isPlaying={isPlaying}
                       isSelected={isSelected}

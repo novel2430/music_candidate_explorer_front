@@ -105,13 +105,14 @@ export function MixingPanel() {
       currentSpace: state.currentSpace,
       candidates: state.candidates,
       profilesById: state.geneProfilesById,
+      lineages: state.creativeLineages,
     }).map((parent) => ({
       ...parent,
       profileStatus: parent.candidate?.gene_profile_id
         ? state.geneProfileStatusById[parent.candidate.gene_profile_id] || 'idle'
         : 'summary',
     })),
-    [selectedCandidates, weights, state.currentSpace, state.candidates, state.geneProfilesById, state.geneProfileStatusById],
+    [selectedCandidates, weights, state.currentSpace, state.candidates, state.geneProfilesById, state.geneProfileStatusById, state.creativeLineages],
   );
   const expectedLoci = useMemo(
     () => buildExpectedGenomeLoci({ parentGenomes, weights }),

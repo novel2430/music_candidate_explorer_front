@@ -1,8 +1,9 @@
 import { Pause, Play, Plus, X } from 'lucide-react';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { uiText } from '../../../config/uiText.js';
 import { pause, togglePlay } from '../../../services/audioController.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
+import { chordList, chordSummaryForCandidate } from '../../../utils/lineageChords.js';
 
 function shortCandidateId(candidateId) {
   return candidateId ? String(candidateId).slice(0, 8) : '-';
@@ -13,24 +14,18 @@ function candidateTitle(candidateId, candidate, isGenerated) {
   return `${isGenerated ? 'Generated' : 'Candidate'} ${shortCandidateId(candidateId)}`;
 }
 
-function chordSymbol(chord) {
-  if (typeof chord === 'string') return chord;
-  return chord?.display_symbol || chord?.simple_symbol || chord?.symbol || chord?.chord || null;
-}
-
 function chordSummary(chords) {
-  const list = (Array.isArray(chords) ? chords : chords ? [chords] : []).map(chordSymbol).filter(Boolean);
-  return list.slice(0, 4).join(' - ');
+  return chordList(chords).slice(0, 4).join(' - ');
 }
 
-function sourceSummary(candidate) {
+function sourceSummary(candidate, lineages = []) {
   const summary = candidate?.music_summary || {};
   return [
     [uiText.familyTree.labels.density, summary.density],
     [uiText.familyTree.labels.register, summary.register],
     [uiText.familyTree.labels.rhythm, summary.rhythm_activity],
     [uiText.familyTree.labels.dynamic, summary.dynamic_level],
-    [uiText.familyTree.labels.chords, chordSummary(summary.main_chords)],
+    [uiText.familyTree.labels.chords, chordSummaryForCandidate({ candidate, lineages })],
   ].filter(([, value]) => value);
 }
 
@@ -43,90 +38,215 @@ function generatedSummary(lineage) {
   ].filter(([, value]) => value);
 }
 
-function buildDepthMap(lineages) {
-  const byChildId = new Map(lineages.map((lineage) => [lineage.childCandidateId, lineage]));
-  const memo = new Map();
-  const visiting = new Set();
-
-  function depthOf(candidateId) {
-    if (!candidateId) return 0;
-    if (memo.has(candidateId)) return memo.get(candidateId);
-    if (visiting.has(candidateId)) return 0;
-
-    const lineage = byChildId.get(candidateId);
-    if (!lineage) {
-      memo.set(candidateId, 0);
-      return 0;
-    }
-
-    visiting.add(candidateId);
-    const depth = Math.max(0, ...lineage.parentCandidateIds.map((parentId) => depthOf(parentId))) + 1;
-    visiting.delete(candidateId);
-    memo.set(candidateId, depth);
-    return depth;
+function nodeSummary(node) {
+  if (node.isGenerated && node.lineage) {
+    const candidateRows = sourceSummary(node.candidate, [node.lineage])
+      .filter(([label]) => label !== uiText.familyTree.labels.chords);
+    return [
+      ...candidateRows,
+      ...generatedSummary(node.lineage),
+    ];
   }
-
-  const candidateIds = new Set();
-  lineages.forEach((lineage) => {
-    lineage.parentCandidateIds.forEach((candidateId) => candidateIds.add(candidateId));
-    candidateIds.add(lineage.childCandidateId);
-  });
-  candidateIds.forEach((candidateId) => depthOf(candidateId));
-  return memo;
+  const candidateRows = sourceSummary(node.candidate);
+  if (candidateRows.length) return candidateRows;
+  return node.isGenerated ? generatedSummary(node.lineage) : [];
 }
 
-function buildColumns({ lineages, candidates, candidateMarks }) {
+function makeInstanceId({ treeId, lineageId, role, candidateId, gen, parentIndex = null }) {
+  return [
+    treeId,
+    lineageId,
+    role,
+    candidateId,
+    `gen_${gen}`,
+    parentIndex == null ? null : `parent_${parentIndex}`,
+  ].filter(Boolean).join('::');
+}
+
+function createTree(index) {
+  return {
+    treeId: `tree_${index}`,
+    title: `Tree ${index}`,
+    lineages: [],
+    columnsByGen: new Map(),
+    edges: [],
+    generatedDepthById: new Map(),
+    generatedNodeById: new Map(),
+    candidateUseCount: new Map(),
+    crossTreeLineageIds: new Set(),
+  };
+}
+
+function addNodeToTree(tree, node) {
+  const previousCount = tree.candidateUseCount.get(node.candidateId) || 0;
+  const nextNode = {
+    ...node,
+    isRepeatedCandidate: previousCount > 0,
+  };
+  const column = tree.columnsByGen.get(nextNode.gen) || [];
+  column.push(nextNode);
+  tree.columnsByGen.set(nextNode.gen, column);
+  tree.candidateUseCount.set(nextNode.candidateId, previousCount + 1);
+  return nextNode;
+}
+
+function treeForLineage(lineage, childToTreeId, treesById) {
+  const parentTrees = (lineage.parentCandidateIds || [])
+    .map((parentId) => childToTreeId.get(parentId))
+    .filter(Boolean);
+  const uniqueTreeIds = [...new Set(parentTrees)];
+  if (!uniqueTreeIds.length) return { tree: null, isCrossTree: false };
+  const sorted = uniqueTreeIds
+    .map((treeId) => {
+      const tree = treesById.get(treeId);
+      const maxParentGen = Math.max(
+        0,
+        ...(lineage.parentCandidateIds || []).map((parentId) => tree?.generatedDepthById.get(parentId) ?? -1),
+      );
+      return { tree, maxParentGen };
+    })
+    .filter((entry) => entry.tree)
+    .sort((a, b) => b.maxParentGen - a.maxParentGen || Number(a.tree.treeId.replace('tree_', '')) - Number(b.tree.treeId.replace('tree_', '')));
+  return { tree: sorted[0]?.tree || null, isCrossTree: uniqueTreeIds.length > 1 };
+}
+
+function buildFamilyTrees({ lineages, candidates, candidateMarks }) {
   const candidatesById = new Map(candidates.map((candidate) => [candidate.candidate_id, candidate]));
-  const childLineageById = new Map(lineages.map((lineage, index) => [lineage.childCandidateId, { ...lineage, mixIndex: index + 1 }]));
   const generatedIds = new Set(lineages.map((lineage) => lineage.childCandidateId));
-  const depthMap = buildDepthMap(lineages);
-  const nodesByDepth = new Map();
+  const childLineageById = new Map(lineages.map((lineage, index) => [lineage.childCandidateId, { ...lineage, mixIndex: index + 1 }]));
+  const trees = [];
+  const treesById = new Map();
+  const childToTreeId = new Map();
 
-  depthMap.forEach((depth, candidateId) => {
-    const candidate = candidatesById.get(candidateId) || null;
-    const childLineage = childLineageById.get(candidateId) || null;
-    const bucket = nodesByDepth.get(depth) || [];
-    bucket.push({
-      candidateId,
-      candidate,
-      depth,
-      mark: candidateMarks[candidateId] || null,
-      lineage: childLineage,
-      isGenerated: generatedIds.has(candidateId),
-      sortKey: childLineage?.createdAt || candidate?.rank || 0,
+  lineages.forEach((rawLineage, index) => {
+    const lineage = { ...rawLineage, mixIndex: index + 1 };
+    const match = treeForLineage(lineage, childToTreeId, treesById);
+    const tree = match.tree || createTree(trees.length + 1);
+    if (!match.tree) {
+      trees.push(tree);
+      treesById.set(tree.treeId, tree);
+    }
+    if (match.isCrossTree) tree.crossTreeLineageIds.add(lineage.id);
+
+    const generatedParentGens = (lineage.parentCandidateIds || [])
+      .map((parentId) => tree.generatedDepthById.get(parentId))
+      .filter((gen) => Number.isFinite(gen));
+    const parentGen = generatedParentGens.length ? Math.max(...generatedParentGens) : 0;
+    const childGen = parentGen + 1;
+    const parentNodes = (lineage.parentCandidateIds || []).map((candidateId, parentIndex) => {
+      const existingGeneratedNode = tree.generatedNodeById.get(candidateId);
+      if (existingGeneratedNode && tree.generatedDepthById.get(candidateId) === parentGen) {
+        return existingGeneratedNode;
+      }
+
+      return addNodeToTree(tree, {
+        instanceId: makeInstanceId({
+          treeId: tree.treeId,
+          lineageId: lineage.id,
+          role: 'parent',
+          candidateId,
+          gen: parentGen,
+          parentIndex,
+        }),
+        candidateId,
+        candidate: candidatesById.get(candidateId) || null,
+        treeId: tree.treeId,
+        lineageId: lineage.id,
+        lineage: childLineageById.get(candidateId) || null,
+        role: 'parent',
+        gen: parentGen,
+        mark: candidateMarks[candidateId] || null,
+        weight: lineage.parentWeights?.[parentIndex] ?? null,
+        isGenerated: generatedIds.has(candidateId),
+        isCrossTree: match.isCrossTree && childToTreeId.get(candidateId) && childToTreeId.get(candidateId) !== tree.treeId,
+      });
     });
-    nodesByDepth.set(depth, bucket);
+    const childNode = addNodeToTree(tree, {
+      instanceId: makeInstanceId({
+        treeId: tree.treeId,
+        lineageId: lineage.id,
+        role: 'child',
+        candidateId: lineage.childCandidateId,
+        gen: childGen,
+      }),
+      candidateId: lineage.childCandidateId,
+      candidate: candidatesById.get(lineage.childCandidateId) || null,
+      treeId: tree.treeId,
+      lineageId: lineage.id,
+      lineage,
+      role: 'child',
+      gen: childGen,
+      mark: candidateMarks[lineage.childCandidateId] || null,
+      weight: null,
+      isGenerated: true,
+      isCrossTree: match.isCrossTree,
+    });
+
+    parentNodes.forEach((parentNode, parentIndex) => {
+      tree.edges.push({
+        id: `${lineage.id}-${parentNode.instanceId}-${childNode.instanceId}`,
+        fromInstanceId: parentNode.instanceId,
+        toInstanceId: childNode.instanceId,
+        weight: lineage.parentWeights?.[parentIndex] ?? null,
+        lineageId: lineage.id,
+      });
+    });
+
+    tree.lineages.push(lineage);
+    tree.generatedDepthById.set(lineage.childCandidateId, childGen);
+    tree.generatedNodeById.set(lineage.childCandidateId, childNode);
+    childToTreeId.set(lineage.childCandidateId, tree.treeId);
   });
 
-  return Array.from(nodesByDepth.entries())
-    .sort((a, b) => a[0] - b[0])
-    .map(([depth, nodes]) => ({
-      depth,
-      nodes: nodes.sort((a, b) => {
-        if (a.sortKey !== b.sortKey) return a.sortKey - b.sortKey;
-        return String(a.candidateId).localeCompare(String(b.candidateId));
-      }),
-    }));
+  return trees.map((tree) => ({
+    treeId: tree.treeId,
+    title: tree.title,
+    lineages: tree.lineages,
+    columns: Array.from(tree.columnsByGen.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([gen, nodes]) => ({
+        gen,
+        label: uiText.familyTree.generation(gen),
+        nodes,
+      })),
+    edges: tree.edges,
+    hasCrossTreeMix: tree.crossTreeLineageIds.size > 0,
+  }));
 }
 
-function buildEdges(lineages, depthMap) {
-  return lineages.flatMap((lineage, lineageIndex) => lineage.parentCandidateIds.map((parentCandidateId, parentIndex) => ({
-    id: `${lineage.id}-${parentCandidateId}`,
-    parentCandidateId,
-    childCandidateId: lineage.childCandidateId,
-    weight: lineage.parentWeights?.[parentIndex] ?? null,
-    depth: depthMap.get(lineage.childCandidateId) || 0,
-    lineageIndex: lineageIndex + 1,
-  })));
+function FamilyTreeTabs({ trees, activeTreeId, onSelect }) {
+  if (!trees.length) return null;
+  return (
+    <div className="family-tree-tabs" role="tablist" aria-label="Creative family trees">
+      {trees.map((tree) => (
+        <button
+          className={tree.treeId === activeTreeId ? 'is-active' : ''}
+          key={tree.treeId}
+          type="button"
+          role="tab"
+          aria-selected={tree.treeId === activeTreeId}
+          onClick={() => onSelect(tree.treeId)}
+        >
+          <span>{tree.title}</span>
+          <small>{tree.lineages.length} {tree.lineages.length === 1 ? 'mix' : 'mixes'}</small>
+          {tree.hasCrossTreeMix && <em>Cross-tree</em>}
+        </button>
+      ))}
+    </div>
+  );
 }
 
-function FamilyTreeNodeCard({ node, isPlaying, isSelected, isInMix, onSelect, onTogglePlay, onToggleMix }) {
-  const summaryRows = node.isGenerated ? generatedSummary(node.lineage) : sourceSummary(node.candidate);
+function FamilyTreeNodeCard({ node, isPlaying, isSelected, isInMix, onSelect, onTogglePlay, onToggleMix, onHoverStart, onHoverEnd }) {
+  const summaryRows = nodeSummary(node);
 
   return (
     <article
-      className={`family-tree-node ${node.isGenerated ? 'is-generated' : 'is-source'} ${isSelected ? 'is-selected' : ''} ${isPlaying ? 'is-playing' : ''}`}
+      className={`family-tree-node ${node.isGenerated ? 'is-generated' : 'is-source'} ${node.role === 'child' ? 'is-child' : 'is-parent'} ${isSelected ? 'is-selected' : ''} ${isPlaying ? 'is-playing' : ''}`}
       onClick={onSelect}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
+      onFocus={onHoverStart}
+      onBlur={onHoverEnd}
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
@@ -145,7 +265,10 @@ function FamilyTreeNodeCard({ node, isPlaying, isSelected, isInMix, onSelect, on
           <span className={`family-tree-badge ${node.isGenerated ? 'is-generated' : 'is-source'}`}>
             {node.isGenerated ? uiText.familyTree.badges.generated : uiText.familyTree.badges.source}
           </span>
-          {node.lineage && <span className="family-tree-badge is-mix">{uiText.familyTree.badges.mix(node.lineage.mixIndex)}</span>}
+          {node.role === 'parent' && node.weight != null && <span className="family-tree-badge is-weight">{Math.round(node.weight * 100)}%</span>}
+          {node.role === 'child' && node.lineage && <span className="family-tree-badge is-mix">{uiText.familyTree.badges.mix(node.lineage.mixIndex)}</span>}
+          {node.isRepeatedCandidate && <span className="family-tree-badge is-reused">reused</span>}
+          {node.isCrossTree && <span className="family-tree-badge is-cross-tree">Cross-tree mix</span>}
           {node.mark === 'interesting' && <span className="family-tree-badge is-interesting">{uiText.familyTree.badges.interesting}</span>}
           {node.mark === 'good' && <span className="family-tree-badge is-good">{uiText.familyTree.badges.good}</span>}
           {isSelected && <span className="family-tree-badge is-selected">{uiText.familyTree.badges.selected}</span>}
@@ -195,26 +318,37 @@ export function CreativeFamilyTreePanel() {
   const canvasRef = useRef(null);
   const nodeRefs = useRef(new Map());
   const [edgeLayout, setEdgeLayout] = useState({ width: 0, height: 0, edges: [] });
+  const [activeTreeId, setActiveTreeId] = useState(null);
+  const [hoveredInstanceId, setHoveredInstanceId] = useState(null);
 
-  const columns = useMemo(
-    () => buildColumns({
+  const trees = useMemo(
+    () => buildFamilyTrees({
       lineages: state.creativeLineages,
       candidates: state.candidates,
       candidateMarks: state.candidateMarks,
     }),
     [state.creativeLineages, state.candidates, state.candidateMarks],
   );
-  const depthMap = useMemo(() => buildDepthMap(state.creativeLineages), [state.creativeLineages]);
-  const edges = useMemo(() => buildEdges(state.creativeLineages, depthMap), [state.creativeLineages, depthMap]);
+  const activeTree = trees.find((tree) => tree.treeId === activeTreeId) || trees[0] || null;
+
+  useEffect(() => {
+    if (!trees.length) {
+      setActiveTreeId(null);
+      return;
+    }
+    if (!trees.some((tree) => tree.treeId === activeTreeId)) {
+      setActiveTreeId(trees[0].treeId);
+    }
+  }, [activeTreeId, trees]);
 
   useLayoutEffect(() => {
     const measure = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const canvasRect = canvas.getBoundingClientRect();
-      const nextEdges = edges.map((edge) => {
-        const parentNode = nodeRefs.current.get(edge.parentCandidateId);
-        const childNode = nodeRefs.current.get(edge.childCandidateId);
+      const nextEdges = (activeTree?.edges || []).map((edge) => {
+        const parentNode = nodeRefs.current.get(edge.fromInstanceId);
+        const childNode = nodeRefs.current.get(edge.toInstanceId);
         if (!parentNode || !childNode) return null;
         const parentRect = parentNode.getBoundingClientRect();
         const childRect = childNode.getBoundingClientRect();
@@ -225,6 +359,7 @@ export function CreativeFamilyTreePanel() {
         const delta = Math.max(40, (x2 - x1) * 0.38);
         return {
           ...edge,
+          isHighlighted: hoveredInstanceId === edge.toInstanceId || hoveredInstanceId === edge.fromInstanceId,
           path: `M ${x1} ${y1} C ${x1 + delta} ${y1}, ${x2 - delta} ${y2}, ${x2} ${y2}`,
           labelX: x1 + (x2 - x1) * 0.52,
           labelY: y1 + (y2 - y1) * 0.5 - 8,
@@ -248,7 +383,7 @@ export function CreativeFamilyTreePanel() {
       resizeObserver.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [columns, edges, state.selectedCandidateId, state.playingCandidateId, state.mixingCandidateIds, state.themeName]);
+  }, [activeTree, hoveredInstanceId, state.selectedCandidateId, state.playingCandidateId, state.mixingCandidateIds, state.themeName]);
 
   function closePanel() {
     state.setActivePanel(null);
@@ -274,73 +409,78 @@ export function CreativeFamilyTreePanel() {
             <p>{uiText.familyTree.emptyHint}</p>
           </section>
         ) : (
-          <div className="family-tree-scroll">
-            <div className="family-tree-canvas" ref={canvasRef}>
-              <svg
-                className="family-tree-edges"
-                width={Math.max(edgeLayout.width, 1)}
-                height={Math.max(edgeLayout.height, 1)}
-                viewBox={`0 0 ${Math.max(edgeLayout.width, 1)} ${Math.max(edgeLayout.height, 1)}`}
-                preserveAspectRatio="none"
-              >
-                {edgeLayout.edges.map((edge) => (
-                  <g key={edge.id} className="family-tree-edge">
-                    <path d={edge.path} />
-                    {edge.weight != null && (
-                      <>
-                        <rect x={edge.labelX - 17} y={edge.labelY - 10} rx="999" ry="999" width="34" height="18" />
-                        <text x={edge.labelX} y={edge.labelY + 3}>{Math.round(edge.weight * 100)}%</text>
-                      </>
-                    )}
-                  </g>
-                ))}
-              </svg>
+          <>
+            <FamilyTreeTabs trees={trees} activeTreeId={activeTree?.treeId} onSelect={setActiveTreeId} />
+            <div className="family-tree-scroll">
+              <div className="family-tree-canvas" ref={canvasRef}>
+                <svg
+                  className="family-tree-edges"
+                  width={Math.max(edgeLayout.width, 1)}
+                  height={Math.max(edgeLayout.height, 1)}
+                  viewBox={`0 0 ${Math.max(edgeLayout.width, 1)} ${Math.max(edgeLayout.height, 1)}`}
+                  preserveAspectRatio="none"
+                >
+                  {edgeLayout.edges.map((edge) => (
+                    <g key={edge.id} className={`family-tree-edge ${edge.isHighlighted ? 'is-highlighted' : ''}`}>
+                      <path d={edge.path} />
+                      {edge.weight != null && (
+                        <>
+                          <rect x={edge.labelX - 17} y={edge.labelY - 10} rx="999" ry="999" width="34" height="18" />
+                          <text x={edge.labelX} y={edge.labelY + 3}>{Math.round(edge.weight * 100)}%</text>
+                        </>
+                      )}
+                    </g>
+                  ))}
+                </svg>
 
-              <div className="family-tree-columns">
-                {columns.map((column) => (
-                  <section className="family-tree-column" key={column.depth}>
-                    <header className="family-tree-column-head">{uiText.familyTree.generation(column.depth)}</header>
-                    <div className="family-tree-column-body">
-                      {column.nodes.map((node) => {
-                        const candidate = node.candidate;
-                        const isPlaying = state.isPlaying && state.playingCandidateId === node.candidateId;
-                        const isSelected = state.selectedCandidateId === node.candidateId;
-                        const isInMix = state.mixingCandidateIds.includes(node.candidateId);
+                <div className="family-tree-columns">
+                  {(activeTree?.columns || []).map((column) => (
+                    <section className="family-tree-column" key={column.gen}>
+                      <header className="family-tree-column-head">{column.label}</header>
+                      <div className="family-tree-column-body">
+                        {column.nodes.map((node) => {
+                          const candidate = node.candidate;
+                          const isPlaying = state.isPlaying && state.playingCandidateId === node.candidateId;
+                          const isSelected = state.selectedCandidateId === node.candidateId;
+                          const isInMix = state.mixingCandidateIds.includes(node.candidateId);
 
-                        return (
-                          <div
-                            className="family-tree-node-wrap"
-                            key={node.candidateId}
-                            ref={(element) => {
-                              if (element) nodeRefs.current.set(node.candidateId, element);
-                              else nodeRefs.current.delete(node.candidateId);
-                            }}
-                          >
-                            <FamilyTreeNodeCard
-                              node={node}
-                              isPlaying={isPlaying}
-                              isSelected={isSelected}
-                              isInMix={isInMix}
-                              onSelect={() => state.selectCandidate(node.candidateId)}
-                              onTogglePlay={() => {
-                                if (!candidate?.audio_url) {
-                                  state.setAudioState({ audioError: uiText.errors.missingAudioUrl });
-                                  return;
-                                }
-                                if (isPlaying) pause();
-                                else togglePlay(candidate);
+                          return (
+                            <div
+                              className="family-tree-node-wrap"
+                              key={node.instanceId}
+                              ref={(element) => {
+                                if (element) nodeRefs.current.set(node.instanceId, element);
+                                else nodeRefs.current.delete(node.instanceId);
                               }}
-                              onToggleMix={() => state.toggleMixingCandidate(node.candidateId)}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </section>
-                ))}
+                            >
+                              <FamilyTreeNodeCard
+                                node={node}
+                                isPlaying={isPlaying}
+                                isSelected={isSelected}
+                                isInMix={isInMix}
+                                onHoverStart={() => setHoveredInstanceId(node.instanceId)}
+                                onHoverEnd={() => setHoveredInstanceId(null)}
+                                onSelect={() => state.selectCandidate(node.candidateId)}
+                                onTogglePlay={() => {
+                                  if (!candidate?.audio_url) {
+                                    state.setAudioState({ audioError: uiText.errors.missingAudioUrl });
+                                    return;
+                                  }
+                                  if (isPlaying) pause();
+                                  else togglePlay(candidate);
+                                }}
+                                onToggleMix={() => state.toggleMixingCandidate(node.candidateId)}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </aside>
     </div>

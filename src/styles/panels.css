@@ -1404,7 +1404,7 @@
   height: 100%;
   padding: 18px;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 14px;
   overflow: hidden;
   background: var(--color-hud-bg);
@@ -1434,7 +1434,44 @@
   display: flex;
   gap: 8px;
 }
+.family-tree-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-self: start;
+}
+.family-tree-tabs button {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 2px 8px;
+  justify-items: start;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.family-tree-tabs button.is-active {
+  border-color: color-mix(in srgb, var(--color-node-selected) 68%, var(--color-hud-border));
+  background: color-mix(in srgb, var(--color-primary-bg) 74%, var(--color-control-bg));
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+.family-tree-tabs span {
+  color: var(--color-hud-text);
+  font-size: 12px;
+  font-weight: 800;
+}
+.family-tree-tabs small {
+  color: var(--color-hud-muted);
+  font-size: 10px;
+}
+.family-tree-tabs em {
+  grid-column: 1 / -1;
+  color: var(--color-node-playing);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 800;
+}
 .family-tree-empty {
+  grid-row: 2 / 4;
   align-content: center;
   justify-items: start;
   min-height: 220px;
@@ -1450,6 +1487,7 @@
   line-height: 1.5;
 }
 .family-tree-scroll {
+  grid-row: 3;
   min-height: 0;
   overflow: auto;
   padding: 2px 6px 4px 2px;
@@ -1460,7 +1498,7 @@
   position: relative;
   min-width: fit-content;
   min-height: 100%;
-  padding: 16px 20px 20px;
+  padding: 18px 24px 22px;
   border: 1px solid color-mix(in srgb, var(--color-hud-border) 78%, transparent);
   border-radius: 14px;
   background:
@@ -1474,8 +1512,8 @@
   z-index: 1;
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 244px;
-  gap: 72px;
+  grid-auto-columns: 248px;
+  gap: 76px;
   align-items: start;
 }
 .family-tree-column {
@@ -1540,6 +1578,11 @@
 .family-tree-node.is-generated {
   border-color: color-mix(in srgb, var(--color-node) 34%, var(--color-hud-border));
 }
+.family-tree-node.is-child {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--color-node) 12%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-control-bg) 62%, transparent), color-mix(in srgb, var(--color-input-bg) 48%, transparent));
+}
 .family-tree-node-head {
   display: grid;
   gap: 8px;
@@ -1581,6 +1624,18 @@
 .family-tree-badge.is-mix {
   border-color: color-mix(in srgb, var(--color-node) 56%, var(--color-hud-border));
   color: var(--color-node);
+}
+.family-tree-badge.is-weight {
+  border-color: color-mix(in srgb, var(--color-node-playing) 56%, var(--color-hud-border));
+  color: var(--color-node-playing);
+}
+.family-tree-badge.is-reused {
+  border-color: color-mix(in srgb, var(--color-hud-muted) 48%, var(--color-hud-border));
+  color: var(--color-hud-muted);
+}
+.family-tree-badge.is-cross-tree {
+  border-color: color-mix(in srgb, var(--color-node-selected) 56%, var(--color-hud-border));
+  color: var(--color-node-selected);
 }
 .family-tree-badge.is-interesting {
   border-color: color-mix(in srgb, var(--color-interesting) 52%, var(--color-hud-border));
@@ -1661,6 +1716,13 @@
   stroke-dasharray: 5 6;
   opacity: 0.88;
   filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-node) 24%, transparent));
+  transition: stroke var(--motion-fast), stroke-width var(--motion-fast), opacity var(--motion-fast), filter var(--motion-fast);
+}
+.family-tree-edge.is-highlighted path {
+  stroke: color-mix(in srgb, var(--color-node-playing) 78%, var(--color-hud-text));
+  stroke-width: 3;
+  opacity: 1;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-node-playing) 46%, transparent));
 }
 .family-tree-edge rect {
   fill: color-mix(in srgb, var(--color-hud-bg) 82%, transparent);
