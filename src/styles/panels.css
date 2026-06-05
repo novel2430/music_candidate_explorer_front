@@ -1138,11 +1138,275 @@
 .mix-validation.is-invalid {
   color: var(--color-bad);
 }
+.creative-basket-backdrop {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-map-bg) 18%, transparent), transparent 36%);
+}
+.creative-basket-panel {
+  position: absolute;
+  top: 88px;
+  left: 24px;
+  bottom: 24px;
+  width: min(396px, calc(100vw - 48px));
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  overflow: hidden;
+  background: var(--color-hud-bg);
+  color: var(--color-hud-text);
+  border: 1px solid var(--color-hud-border);
+  border-radius: var(--radius-hud);
+  backdrop-filter: blur(var(--blur-hud));
+  box-shadow: var(--shadow-hud);
+  animation: hudIn var(--motion-normal) ease both;
+}
+.creative-basket-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+}
+.creative-basket-head h2 {
+  margin: 0;
+  font-size: 19px;
+}
+.creative-basket-head p {
+  margin: 5px 0 0;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.creative-basket-body {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  overflow: hidden;
+}
+.creative-basket-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--color-control-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-input-bg) 74%, transparent);
+}
+.creative-basket-tab {
+  min-height: 40px;
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-hud-muted);
+  box-shadow: none;
+}
+.creative-basket-tab:hover {
+  border-color: color-mix(in srgb, var(--color-control-hover) 40%, transparent);
+  background: color-mix(in srgb, var(--color-control-bg) 44%, transparent);
+}
+.creative-basket-tab.is-active {
+  border-color: var(--color-node-selected);
+  background: color-mix(in srgb, var(--color-primary-bg) 82%, var(--color-control-bg));
+  color: var(--color-hud-text);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+.creative-basket-tab span {
+  font-size: 12px;
+  font-weight: 800;
+}
+.creative-basket-tab small {
+  font-size: 10px;
+  color: inherit;
+}
+.creative-basket-section {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+.creative-basket-tabpanel {
+  gap: 10px;
+}
+.creative-basket-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.creative-basket-section-heading strong {
+  color: var(--color-hud-text);
+  font-size: 13px;
+}
+.creative-basket-section-heading small {
+  color: var(--color-hud-muted);
+  font-size: 11px;
+}
+.creative-basket-list {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-color: color-mix(in srgb, var(--color-node) 52%, var(--color-hud-border)) color-mix(in srgb, var(--color-input-bg) 54%, transparent);
+  scrollbar-width: thin;
+}
+.creative-basket-empty {
+  margin: 0;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.creative-basket-card {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-control-bg) 62%, transparent), color-mix(in srgb, var(--color-input-bg) 48%, transparent));
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast),
+    transform var(--motion-fast),
+    box-shadow var(--motion-fast),
+    background var(--motion-fast);
+}
+.creative-basket-card:hover {
+  border-color: color-mix(in srgb, var(--color-control-hover) 68%, var(--color-hud-border));
+  transform: translateY(-1px);
+}
+.creative-basket-card:focus-visible {
+  outline: none;
+  border-color: var(--color-node-selected);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+.creative-basket-card.is-selected {
+  border-color: color-mix(in srgb, var(--color-node-selected) 72%, var(--color-hud-border));
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+.creative-basket-card.is-playing {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--color-node-playing) 18%, transparent), transparent 42%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-control-bg) 62%, transparent), color-mix(in srgb, var(--color-input-bg) 48%, transparent));
+}
+.creative-basket-card-head {
+  display: grid;
+  gap: 8px;
+}
+.creative-basket-card-head > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.creative-basket-card-head strong {
+  color: var(--color-hud-text);
+  font-size: 13px;
+}
+.creative-basket-card-head small {
+  color: var(--color-hud-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.creative-basket-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.creative-basket-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 8px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 999px;
+  color: var(--color-hud-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.creative-basket-badge.is-interesting {
+  border-color: color-mix(in srgb, var(--color-interesting) 52%, var(--color-hud-border));
+  color: var(--color-interesting);
+}
+.creative-basket-badge.is-good {
+  border-color: color-mix(in srgb, var(--color-good) 52%, var(--color-hud-border));
+  color: var(--color-good);
+}
+.creative-basket-badge.is-mix {
+  border-color: color-mix(in srgb, var(--color-node) 56%, var(--color-hud-border));
+  color: var(--color-node);
+}
+.creative-basket-badge.is-generated,
+.creative-basket-badge.is-playing {
+  border-color: color-mix(in srgb, var(--color-node-playing) 56%, var(--color-hud-border));
+  color: var(--color-node-playing);
+}
+.creative-basket-badge.is-selected {
+  border-color: color-mix(in srgb, var(--color-node-selected) 56%, var(--color-hud-border));
+  color: var(--color-node-selected);
+}
+.creative-basket-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.creative-basket-summary.is-empty {
+  grid-template-columns: 1fr;
+}
+.creative-basket-summary span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-input-bg) 46%, transparent);
+}
+.creative-basket-summary small {
+  color: var(--color-hud-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.creative-basket-summary strong {
+  color: var(--color-hud-text);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.creative-basket-summary p {
+  margin: 0;
+  color: var(--color-hud-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.creative-basket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.creative-basket-actions button {
+  min-height: 30px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+.creative-basket-actions .play-button {
+  color: var(--color-node-playing);
+}
 @media (max-width: 1100px) {
   .mixing-panel-large,
   .gene-panel-large {
     width: 100vw;
     min-width: 0;
+  }
+  .creative-basket-panel {
+    top: 84px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
   }
   .mixing-panel-grid,
   .gene-panel-grid {
@@ -1170,6 +1434,14 @@
     min-height: 330px;
   }
   .mix-settings-section .mix-form {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .creative-basket-panel {
+    top: 12px;
+  }
+  .creative-basket-summary {
     grid-template-columns: 1fr;
   }
 }

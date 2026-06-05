@@ -5,6 +5,7 @@ import { DebugPanel } from './components/DebugPanel.jsx';
 import { GenePanel } from './components/GenePanel.jsx';
 import { MixingPanel } from './components/MixingPanel.jsx';
 import { ThemePanel } from './components/ThemePanel.jsx';
+import { CreativeBasketPanel } from './components/CreativeBasketPanel.jsx';
 import { useExplorerStore } from '../../store/useExplorerStore.js';
 
 export function ExplorerPage() {
@@ -16,6 +17,7 @@ export function ExplorerPage() {
       <MapArea />
       {activePanel === 'advanced' && <AdvancedPanel />}
       {activePanel === 'debug' && <DebugPanel />}
+      {activePanel === 'creative-basket' && <CreativeBasketPanel />}
       {activePanel === 'gene' && <GenePanel />}
       {activePanel === 'mixing' && <MixingPanel />}
       {activePanel === 'theme' && <ThemePanel />}

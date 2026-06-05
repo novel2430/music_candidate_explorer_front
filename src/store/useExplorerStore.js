@@ -239,12 +239,12 @@ export const useExplorerStore = create((set, get) => ({
   markCandidate: (candidateId, mark) => {
     set((state) => {
       const next = { ...state.candidateMarks };
-      if (next[candidateId] === mark) delete next[candidateId];
+      if (mark == null || next[candidateId] === mark) delete next[candidateId];
       else next[candidateId] = mark;
       writeJson(STORAGE_KEYS.candidateMarks, next);
       return { candidateMarks: next };
     });
-    get().logUserEvent(`candidate.mark.${mark}`, { candidateId });
+    get().logUserEvent(mark == null ? 'candidate.mark.clear' : `candidate.mark.${mark}`, { candidateId });
   },
 
   setAudioState: (audioState) => set(audioState),

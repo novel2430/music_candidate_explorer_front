@@ -1,4 +1,4 @@
-import { Blend, Bug, Eye, EyeOff, Gauge, Palette, RotateCcw, Search } from 'lucide-react';
+import { Archive, Blend, Bug, Eye, EyeOff, Gauge, Palette, RotateCcw, Search } from 'lucide-react';
 import { useState } from 'react';
 import { uiText } from '../../../config/uiText.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
@@ -10,6 +10,12 @@ export function TopBanner() {
   const state = useExplorerStore();
   const busy = ['queued', 'running'].includes(state.taskStatus) || isSubmitting;
   const canMix = state.mixingCandidateIds.length >= 2;
+  const creativeBasketCount = new Set([
+    ...state.candidates
+      .filter((candidate) => ['interesting', 'good'].includes(state.candidateMarks[candidate.candidate_id]))
+      .map((candidate) => candidate.candidate_id),
+    ...state.mixingCandidateIds,
+  ]).size;
 
   function runSearch(event) {
     event.preventDefault();
@@ -44,6 +50,12 @@ export function TopBanner() {
       <nav className="banner-actions">
         <button title={uiText.topBanner.resetView} onClick={state.resetCamera}><RotateCcw size={16} /></button>
         <button title={uiText.topBanner.toggleHud} onClick={() => state.setHudVisible(!state.hudVisible)}>{state.hudVisible ? <Eye size={16} /> : <EyeOff size={16} />}</button>
+        <button
+          title={uiText.creativeBasket.title}
+          onClick={() => state.setActivePanel(state.activePanel === 'creative-basket' ? null : 'creative-basket')}
+        >
+          <Archive size={16} /> {uiText.creativeBasket.open(creativeBasketCount)}
+        </button>
         <button title={uiText.mixing.open} disabled={!canMix} onClick={() => state.setActivePanel('mixing')}><Blend size={16} /> {uiText.mixing.open}</button>
         <button title={uiText.topBanner.advanced} onClick={() => state.setActivePanel('advanced')}><Gauge size={16} /> {uiText.topBanner.advanced}</button>
         <button title={uiText.topBanner.theme} onClick={() => state.setActivePanel('theme')}><Palette size={16} /> {uiText.topBanner.theme}</button>

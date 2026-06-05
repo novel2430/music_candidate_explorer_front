@@ -91,6 +91,37 @@ export const uiText = {
     harmonySourcesTitle: 'Harmony Sources',
     harmonyPreviewHint: 'Harmony is sequence-based and will be resolved during generation.',
   },
+  creativeBasket: {
+    title: 'Creative Basket',
+    subtitle: 'Collected candidates for comparison and recombination.',
+    open: (count) => `Creative Basket · ${count}`,
+    sectionTitles: {
+      interesting: 'Interesting',
+      good: 'Good',
+      mix: 'Mix Bench',
+    },
+    empty: {
+      interesting: 'No interesting candidates yet.',
+      good: 'No good candidates yet.',
+      mix: 'No candidates selected for mixing.',
+    },
+    actions: {
+      addToMix: 'Add to Mix',
+      removeFromMix: 'Remove from Mix',
+      removeMark: 'Remove Mark',
+      play: 'Play',
+      pause: 'Pause',
+    },
+    badges: {
+      interesting: 'Interesting',
+      good: 'Good',
+      mix: 'Mix',
+      generated: 'Generated',
+      selected: 'Selected',
+      playing: 'Playing',
+    },
+    summaryEmpty: 'Summary not available.',
+  },
   gene: {
     button: 'Gene',
     open: 'Open Music Genome Panel',
