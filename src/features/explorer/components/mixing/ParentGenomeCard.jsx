@@ -22,6 +22,15 @@ export function ParentGenomeCard({ parentGenome, isPlaying, onOpenGene, onRemove
         </div>
         <span>{Math.round(weight * 100)}%</span>
       </div>
+      <small className={`mix-parent-profile-status is-${parentGenome.profileStatus}`}>
+        {parentGenome.profileStatus === 'loaded'
+          ? 'Detailed genome ready'
+          : parentGenome.profileStatus === 'loading'
+            ? 'Loading detailed genome...'
+            : parentGenome.profileStatus === 'error'
+              ? 'Summary genome fallback'
+              : 'Summary genome'}
+      </small>
       <SemanticTagPills tags={(candidate?.semantic_tags || []).slice(0, 4)} compact />
       <div className="mix-parent-metrics">
         {miniLoci.map((locus) => (

@@ -611,6 +611,24 @@
   padding: 0 8px;
   font-size: 11px;
 }
+.mix-parent-profile-status {
+  width: max-content;
+  padding: 2px 6px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 999px;
+  color: var(--color-hud-muted);
+  font-size: 10px;
+}
+.mix-parent-profile-status.is-loaded {
+  border-color: color-mix(in srgb, var(--color-node) 52%, var(--color-hud-border));
+  color: var(--color-node);
+}
+.mix-parent-profile-status.is-loading {
+  color: var(--color-node-playing);
+}
+.mix-parent-profile-status.is-error {
+  color: var(--color-bad);
+}
 .mix-synthesis {
   display: grid;
   gap: 10px;
@@ -620,6 +638,12 @@
   background:
     radial-gradient(circle at 62% 28%, color-mix(in srgb, var(--color-node-playing) 12%, transparent), transparent 38%),
     color-mix(in srgb, var(--color-hud-bg) 72%, transparent);
+}
+.mix-synthesis-status {
+  margin: -2px 0 0;
+  color: var(--color-hud-muted);
+  font-size: 11px;
+  line-height: 1.35;
 }
 .mix-synthesis-svg {
   width: 100%;
@@ -648,6 +672,9 @@
   stroke-width: 0.8;
   opacity: 0.85;
 }
+.mix-synthesis-parent-node.source-a circle { fill: var(--color-node-playing); }
+.mix-synthesis-parent-node.source-b circle { fill: var(--color-node); }
+.mix-synthesis-parent-node.source-c circle { fill: var(--color-node-selected); }
 .mix-synthesis-parent-node text {
   fill: var(--color-hud-muted);
   font-size: 11px;
@@ -666,6 +693,21 @@
   stroke-linecap: round;
   transition: stroke var(--motion-fast), stroke-width var(--motion-fast);
 }
+.mix-synthesis-locus.source-mostly-a line,
+.mix-synthesis-locus.source-blend-ab line,
+.mix-synthesis-locus.source-blend-ac line {
+  stroke: color-mix(in srgb, var(--color-node-playing) 62%, var(--color-hud-text));
+}
+.mix-synthesis-locus.source-mostly-b line,
+.mix-synthesis-locus.source-blend-bc line {
+  stroke: color-mix(in srgb, var(--color-node) 66%, var(--color-hud-text));
+}
+.mix-synthesis-locus.source-mostly-c line {
+  stroke: color-mix(in srgb, var(--color-node-selected) 66%, var(--color-hud-text));
+}
+.mix-synthesis-locus.source-balanced line {
+  stroke-dasharray: 5 5;
+}
 .mix-synthesis-locus:hover line {
   stroke: var(--color-node-playing);
   stroke-width: 2.4;
@@ -681,6 +723,35 @@
   stroke-width: 1;
   filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-node-playing) 72%, transparent));
   transition: cx var(--motion-normal);
+}
+.mix-synthesis-locus.source-mostly-a .mix-synthesis-marker {
+  fill: var(--color-node-playing);
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--color-node-playing) 76%, transparent));
+}
+.mix-synthesis-locus.source-mostly-b .mix-synthesis-marker {
+  fill: var(--color-node);
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--color-node) 72%, transparent));
+}
+.mix-synthesis-locus.source-mostly-c .mix-synthesis-marker {
+  fill: var(--color-node-selected);
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--color-node-selected) 72%, transparent));
+}
+.mix-synthesis-locus.source-blend-ab .mix-synthesis-marker,
+.mix-synthesis-locus.source-blend-ac .mix-synthesis-marker,
+.mix-synthesis-locus.source-blend-bc .mix-synthesis-marker {
+  fill: color-mix(in srgb, var(--color-node-playing) 46%, var(--color-node));
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-node) 70%, transparent));
+}
+.mix-synthesis-locus.source-balanced .mix-synthesis-marker {
+  fill: color-mix(in srgb, var(--color-hud-text) 72%, var(--color-node));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-hud-text) 42%, transparent));
+}
+.mix-synthesis-source-label {
+  fill: var(--color-hud-muted);
+  font-size: 8.5px;
+  font-weight: 900;
+  text-anchor: middle;
+  pointer-events: none;
 }
 .mix-synthesis-contributions {
   display: grid;
@@ -706,6 +777,32 @@
   color: var(--color-hud-text);
   font-size: 11px;
 }
+.mix-synthesis-contributions strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mix-synthesis-contributions em {
+  min-width: 22px;
+  padding: 1px 5px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 999px;
+  color: var(--color-node-playing);
+  font-size: 9px;
+  font-style: normal;
+  text-align: center;
+}
+.mix-synthesis-contributions .source-mostly-b em,
+.mix-synthesis-contributions .source-blend-bc em {
+  color: var(--color-node);
+}
+.mix-synthesis-contributions .source-mostly-c em,
+.mix-synthesis-contributions .source-blend-ac em {
+  color: var(--color-node-selected);
+}
+.mix-synthesis-contributions .source-balanced em {
+  color: var(--color-hud-muted);
+}
 .mix-harmony-sources {
   display: grid;
   gap: 6px;
@@ -721,9 +818,17 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
+.mix-harmony-sources p.is-emphasized {
+  color: var(--color-hud-text);
+}
 @keyframes mixSynthesisFlow {
   from { stroke-dashoffset: 0; }
   to { stroke-dashoffset: -32; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mix-synthesis-flow {
+    animation: none !important;
+  }
 }
 .mix-geometry {
   min-height: 0;

@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
+import { getGeneProfile } from '../../../api/geneProfilesApi.js';
 import { uiText } from '../../../config/uiText.js';
 import { generateCandidateMix } from '../../../services/mixingWorkflow.js';
 import { useExplorerStore } from '../../../store/useExplorerStore.js';
@@ -81,6 +82,19 @@ export function MixingPanel() {
       .filter(Boolean),
     [state.candidates, state.mixingCandidateIds],
   );
+  useEffect(() => {
+    selectedCandidates.forEach((candidate) => {
+      const geneProfileId = candidate?.gene_profile_id;
+      if (!geneProfileId) return;
+      const status = state.geneProfileStatusById[geneProfileId];
+      if (status === 'loaded' || status === 'loading' || status === 'error') return;
+
+      state.setGeneProfileLoading(geneProfileId);
+      getGeneProfile(geneProfileId)
+        .then((profile) => state.setGeneProfileLoaded(geneProfileId, profile))
+        .catch((error) => state.setGeneProfileError(geneProfileId, error?.message || String(error)));
+    });
+  }, [selectedCandidates, state.geneProfileStatusById]);
   const weights = state.mixingWeights.length === selectedCandidates.length
     ? state.mixingWeights
     : selectedCandidates.map(() => 1 / Math.max(selectedCandidates.length, 1));
@@ -91,8 +105,13 @@ export function MixingPanel() {
       currentSpace: state.currentSpace,
       candidates: state.candidates,
       profilesById: state.geneProfilesById,
-    }),
-    [selectedCandidates, weights, state.currentSpace, state.candidates, state.geneProfilesById],
+    }).map((parent) => ({
+      ...parent,
+      profileStatus: parent.candidate?.gene_profile_id
+        ? state.geneProfileStatusById[parent.candidate.gene_profile_id] || 'idle'
+        : 'summary',
+    })),
+    [selectedCandidates, weights, state.currentSpace, state.candidates, state.geneProfilesById, state.geneProfileStatusById],
   );
   const expectedLoci = useMemo(
     () => buildExpectedGenomeLoci({ parentGenomes, weights }),
