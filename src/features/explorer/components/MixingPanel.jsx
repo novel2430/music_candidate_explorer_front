@@ -171,6 +171,18 @@ export function MixingPanel() {
     });
   }
 
+  function retryFailedParentProfiles() {
+    selectedCandidates.forEach((candidate) => {
+      const geneProfileId = candidate?.gene_profile_id;
+      if (!geneProfileId || state.geneProfileStatusById[geneProfileId] !== 'error') return;
+
+      state.setGeneProfileLoading(geneProfileId);
+      getGeneProfile(geneProfileId)
+        .then((profile) => state.setGeneProfileLoaded(geneProfileId, profile))
+        .catch((error) => state.setGeneProfileError(geneProfileId, error?.message || String(error)));
+    });
+  }
+
   return (
     <div className="panel-backdrop" onMouseDown={() => state.setActivePanel(null)}>
       <aside className="mixing-panel-large" onMouseDown={(event) => event.stopPropagation()}>
@@ -283,6 +295,7 @@ export function MixingPanel() {
               parentGenomes={parentGenomes}
               expectedLoci={expectedLoci}
               isActive={isAdjustingWeights}
+              onRetryFailedProfiles={retryFailedParentProfiles}
             />
           </div>
 

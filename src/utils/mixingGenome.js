@@ -26,32 +26,46 @@ function contributionType(parents) {
 }
 
 export function computeLocusContributions({ parentLociEntries, expectedValue }) {
-  const rawScores = parentLociEntries.map((entry) => ({
-    name: MIX_PARENT_NAMES[entry.parentIndex] || String(entry.parentIndex + 1),
-    parentIndex: entry.parentIndex,
-    rawScore: entry.weight * (0.5 + Math.abs(entry.locus.value - expectedValue)),
-    value: entry.locus.value,
-    weight: entry.weight,
-  }));
-  const total = rawScores.reduce((sum, entry) => sum + entry.rawScore, 0);
+  const rawScores = parentLociEntries.map((entry) => {
+    const value = Number(entry.locus?.value);
+    const safeValue = Number.isFinite(value) ? clamp01(value) : 0.5;
+    const weight = clamp01(entry.weight);
+    return {
+      parentKey: MIX_PARENT_NAMES[entry.parentIndex] || String(entry.parentIndex + 1),
+      name: MIX_PARENT_NAMES[entry.parentIndex] || String(entry.parentIndex + 1),
+      parentIndex: entry.parentIndex,
+      score: weight * (0.5 + Math.abs(safeValue - expectedValue)),
+      value: safeValue,
+      weight,
+    };
+  });
+  const total = rawScores.reduce((sum, entry) => sum + entry.score, 0);
+  const weightTotal = rawScores.reduce((sum, entry) => sum + entry.weight, 0);
   const scores = rawScores
-    .map((entry) => ({ ...entry, score: total > 0 ? entry.rawScore / total : 1 / Math.max(rawScores.length, 1) }))
-    .sort((a, b) => b.score - a.score);
+    .map((entry) => ({
+      ...entry,
+      normalizedScore: total > 0
+        ? entry.score / total
+        : weightTotal > 0
+          ? entry.weight / weightTotal
+          : 1 / Math.max(rawScores.length, 1),
+    }))
+    .sort((a, b) => b.normalizedScore - a.normalizedScore);
 
   if (!scores.length) {
     return { dominantType: 'balanced', label: 'balanced', dominantParents: [], scores: [] };
   }
 
-  if (scores.length >= 3 && scores[0].score - scores[2].score < 0.12) {
+  if (scores.length >= 3 && scores[0].normalizedScore - scores[2].normalizedScore < 0.12) {
     return { dominantType: 'balanced', label: 'balanced', dominantParents: scores.map((entry) => entry.name), scores };
   }
 
-  if (scores.length >= 2 && scores[0].score - scores[1].score < 0.1 && scores[0].score + scores[1].score >= 0.72) {
+  if (scores.length >= 2 && scores[0].normalizedScore - scores[1].normalizedScore < 0.1 && scores[0].normalizedScore + scores[1].normalizedScore >= 0.72) {
     const parents = [scores[0].name, scores[1].name].sort();
     return { dominantType: contributionType(parents), label: `${parents[0]} + ${parents[1]} blend`, dominantParents: parents, scores };
   }
 
-  if (scores[0].score >= 0.55 || scores.length === 1) {
+  if (scores[0].normalizedScore >= 0.55 || scores.length === 1) {
     return { dominantType: contributionType([scores[0].name]), label: `mostly ${scores[0].name}`, dominantParents: [scores[0].name], scores };
   }
 
