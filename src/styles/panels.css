@@ -1395,9 +1395,287 @@
 .creative-basket-actions .play-button {
   color: var(--color-node-playing);
 }
+.family-tree-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(78vw, 1220px);
+  min-width: min(920px, 100vw);
+  height: 100%;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+  overflow: hidden;
+  background: var(--color-hud-bg);
+  color: var(--color-hud-text);
+  border-left: 1px solid var(--color-hud-border);
+  backdrop-filter: blur(var(--blur-hud));
+  box-shadow: var(--shadow-hud);
+  animation: panelIn var(--motion-normal) ease both;
+}
+.family-tree-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+}
+.family-tree-head h2 {
+  margin: 0;
+  font-size: 19px;
+}
+.family-tree-head p {
+  margin: 5px 0 0;
+  color: var(--color-hud-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.family-tree-head-actions {
+  display: flex;
+  gap: 8px;
+}
+.family-tree-empty {
+  align-content: center;
+  justify-items: start;
+  min-height: 220px;
+}
+.family-tree-empty h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.family-tree-empty p {
+  margin: 0;
+  color: var(--color-hud-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.family-tree-scroll {
+  min-height: 0;
+  overflow: auto;
+  padding: 2px 6px 4px 2px;
+  scrollbar-color: color-mix(in srgb, var(--color-node) 52%, var(--color-hud-border)) color-mix(in srgb, var(--color-input-bg) 54%, transparent);
+  scrollbar-width: thin;
+}
+.family-tree-canvas {
+  position: relative;
+  min-width: fit-content;
+  min-height: 100%;
+  padding: 16px 20px 20px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 78%, transparent);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 22% 18%, color-mix(in srgb, var(--color-node) 14%, transparent), transparent 34%),
+    radial-gradient(circle at 78% 76%, color-mix(in srgb, var(--color-node-playing) 12%, transparent), transparent 32%),
+    color-mix(in srgb, var(--color-hud-bg) 74%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.family-tree-columns {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 244px;
+  gap: 72px;
+  align-items: start;
+}
+.family-tree-column {
+  display: grid;
+  gap: 12px;
+}
+.family-tree-column-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--color-node) 34%, var(--color-hud-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-control-bg) 76%, transparent);
+  color: var(--color-hud-text);
+  font-size: 11px;
+  font-weight: 800;
+  backdrop-filter: blur(calc(var(--blur-hud) * 0.7));
+}
+.family-tree-column-body {
+  display: grid;
+  gap: 20px;
+}
+.family-tree-node-wrap {
+  position: relative;
+}
+.family-tree-node {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-control-bg) 62%, transparent), color-mix(in srgb, var(--color-input-bg) 48%, transparent));
+  box-shadow: 0 10px 22px color-mix(in srgb, black 16%, transparent);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast),
+    transform var(--motion-fast),
+    box-shadow var(--motion-fast),
+    background var(--motion-fast);
+}
+.family-tree-node:hover {
+  border-color: color-mix(in srgb, var(--color-control-hover) 68%, var(--color-hud-border));
+  transform: translateY(-1px);
+}
+.family-tree-node:focus-visible {
+  outline: none;
+  border-color: var(--color-node-selected);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+.family-tree-node.is-selected {
+  border-color: color-mix(in srgb, var(--color-node-selected) 72%, var(--color-hud-border));
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+.family-tree-node.is-playing {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--color-node-playing) 18%, transparent), transparent 42%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-control-bg) 62%, transparent), color-mix(in srgb, var(--color-input-bg) 48%, transparent));
+}
+.family-tree-node.is-generated {
+  border-color: color-mix(in srgb, var(--color-node) 34%, var(--color-hud-border));
+}
+.family-tree-node-head {
+  display: grid;
+  gap: 8px;
+}
+.family-tree-node-head > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.family-tree-node-head strong {
+  color: var(--color-hud-text);
+  font-size: 13px;
+}
+.family-tree-node-head small {
+  color: var(--color-hud-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.family-tree-node-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.family-tree-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 8px;
+  border: 1px solid var(--color-hud-border);
+  border-radius: 999px;
+  color: var(--color-hud-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.family-tree-badge.is-source {
+  border-color: color-mix(in srgb, var(--color-hud-muted) 34%, var(--color-hud-border));
+}
+.family-tree-badge.is-generated,
+.family-tree-badge.is-mix {
+  border-color: color-mix(in srgb, var(--color-node) 56%, var(--color-hud-border));
+  color: var(--color-node);
+}
+.family-tree-badge.is-interesting {
+  border-color: color-mix(in srgb, var(--color-interesting) 52%, var(--color-hud-border));
+  color: var(--color-interesting);
+}
+.family-tree-badge.is-good {
+  border-color: color-mix(in srgb, var(--color-good) 52%, var(--color-hud-border));
+  color: var(--color-good);
+}
+.family-tree-badge.is-selected {
+  border-color: color-mix(in srgb, var(--color-node-selected) 56%, var(--color-hud-border));
+  color: var(--color-node-selected);
+}
+.family-tree-badge.is-playing {
+  border-color: color-mix(in srgb, var(--color-node-playing) 56%, var(--color-hud-border));
+  color: var(--color-node-playing);
+}
+.family-tree-node-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.family-tree-node-summary.is-empty {
+  grid-template-columns: 1fr;
+}
+.family-tree-node-summary span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--color-hud-border) 72%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-input-bg) 46%, transparent);
+}
+.family-tree-node-summary small {
+  color: var(--color-hud-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.family-tree-node-summary strong {
+  color: var(--color-hud-text);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.family-tree-node-summary p {
+  margin: 0;
+  color: var(--color-hud-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.family-tree-node-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.family-tree-node-actions button {
+  min-height: 30px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+.family-tree-node-actions .play-button {
+  color: var(--color-node-playing);
+}
+.family-tree-edges {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.family-tree-edge path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-node) 48%, var(--color-hud-border));
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 6;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-node) 24%, transparent));
+}
+.family-tree-edge rect {
+  fill: color-mix(in srgb, var(--color-hud-bg) 82%, transparent);
+  stroke: color-mix(in srgb, var(--color-node) 36%, var(--color-hud-border));
+}
+.family-tree-edge text {
+  fill: var(--color-hud-text);
+  font-size: 10px;
+  font-weight: 800;
+  text-anchor: middle;
+}
 @media (max-width: 1100px) {
   .mixing-panel-large,
-  .gene-panel-large {
+  .gene-panel-large,
+  .family-tree-panel {
     width: 100vw;
     min-width: 0;
   }
@@ -1442,6 +1720,13 @@
     top: 12px;
   }
   .creative-basket-summary {
+    grid-template-columns: 1fr;
+  }
+  .family-tree-columns {
+    grid-auto-columns: minmax(220px, 1fr);
+    gap: 36px;
+  }
+  .family-tree-node-summary {
     grid-template-columns: 1fr;
   }
 }

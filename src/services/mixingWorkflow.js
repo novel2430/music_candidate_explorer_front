@@ -5,6 +5,17 @@ import { useExplorerStore } from '../store/useExplorerStore.js';
 import { normalizeWeights } from '../utils/mixingGeometry.js';
 import { pollTaskUntilDone } from './taskPollingService.js';
 
+function resolveGeneratedCandidate({ completedTask, taskId, previousCandidateIds, nextCandidates }) {
+  const directId = completedTask.outputs?.generated_candidate_id;
+  if (directId) return nextCandidates.find((candidate) => candidate.candidate_id === directId) || null;
+
+  return nextCandidates.find((candidate) => {
+    const candidateId = candidate?.candidate_id;
+    if (!candidateId || previousCandidateIds.has(candidateId)) return false;
+    return candidate?.source?.created_by_task_id === taskId || candidate?.created_by_task_id === taskId;
+  }) || null;
+}
+
 export async function generateCandidateMix(options = {}) {
   const store = useExplorerStore.getState();
   const candidateIds = store.mixingCandidateIds.slice(0, 3);
@@ -12,6 +23,8 @@ export async function generateCandidateMix(options = {}) {
   const outputBars = Number(options.outputBars) || 4;
   const targetBpm = Number(options.targetBpm) || 100;
   const chordProgression = options.chordProgression?.length ? options.chordProgression : ['C', 'Am', 'F', 'G'];
+  const renderAudio = options.renderAudio ?? true;
+  const previousCandidateIds = new Set(store.candidates.map((candidate) => candidate.candidate_id));
 
   if (candidateIds.length < 2) {
     store.setMixError(uiText.errors.mixNeedsTwo);
@@ -39,7 +52,7 @@ export async function generateCandidateMix(options = {}) {
         blend_method: 'weighted_lerp',
         keep_chord: true,
         align: 'repeat',
-        render_audio: true,
+        render_audio: renderAudio,
         add_to_space: true,
         position_policy: 'weighted_interpolate',
       },
@@ -51,15 +64,34 @@ export async function generateCandidateMix(options = {}) {
     const completedTask = await pollTaskUntilDone(task.task_id, {
       intervalMs: store.pollingInterval,
     });
-    const generatedCandidateId = completedTask.outputs?.generated_candidate_id;
     const space = await getSpace(store.currentSpaceId);
+    const generatedCandidate = resolveGeneratedCandidate({
+      completedTask,
+      taskId: task.task_id,
+      previousCandidateIds,
+      nextCandidates: space?.candidates || [],
+    });
     useExplorerStore.getState().setSpace(space);
     useExplorerStore.getState().setMixGenerating(false, task.task_id);
 
-    if (generatedCandidateId) {
-      useExplorerStore.getState().selectCandidate(generatedCandidateId);
+    if (generatedCandidate?.candidate_id) {
+      useExplorerStore.getState().addCreativeLineage({
+        id: `lineage-${Date.now()}-${generatedCandidate.candidate_id}`,
+        mixId: generatedCandidate.source?.mix_id || generatedCandidate.mix_id || completedTask.outputs?.mix_id || task.task_id,
+        parentCandidateIds: candidateIds,
+        parentWeights: weights,
+        childCandidateId: generatedCandidate.candidate_id,
+        settings: {
+          bars: outputBars,
+          bpm: targetBpm,
+          chordProgression,
+          renderAudio,
+        },
+        createdAt: Date.now(),
+      });
+      useExplorerStore.getState().selectCandidate(generatedCandidate.candidate_id);
       useExplorerStore.getState().setCandidateHudCollapsed(false);
-      useExplorerStore.getState().logUserEvent('mixing.generated', { taskId: task.task_id, generatedCandidateId });
+      useExplorerStore.getState().logUserEvent('mixing.generated', { taskId: task.task_id, generatedCandidateId: generatedCandidate.candidate_id });
     }
   } catch (error) {
     useExplorerStore.getState().setMixError(error.message || uiText.errors.mixFailed);

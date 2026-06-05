@@ -6,6 +6,7 @@ import { GenePanel } from './components/GenePanel.jsx';
 import { MixingPanel } from './components/MixingPanel.jsx';
 import { ThemePanel } from './components/ThemePanel.jsx';
 import { CreativeBasketPanel } from './components/CreativeBasketPanel.jsx';
+import { CreativeFamilyTreePanel } from './components/CreativeFamilyTreePanel.jsx';
 import { useExplorerStore } from '../../store/useExplorerStore.js';
 
 export function ExplorerPage() {
@@ -18,6 +19,7 @@ export function ExplorerPage() {
       {activePanel === 'advanced' && <AdvancedPanel />}
       {activePanel === 'debug' && <DebugPanel />}
       {activePanel === 'creative-basket' && <CreativeBasketPanel />}
+      {activePanel === 'family-tree' && <CreativeFamilyTreePanel />}
       {activePanel === 'gene' && <GenePanel />}
       {activePanel === 'mixing' && <MixingPanel />}
       {activePanel === 'theme' && <ThemePanel />}

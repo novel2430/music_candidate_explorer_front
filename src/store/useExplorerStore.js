@@ -77,6 +77,7 @@ const initialState = {
   hudVisible: true,
   candidateHudCollapsed: true,
   activePanel: null,
+  creativeLineages: [],
 
   requestHistory: readJson(STORAGE_KEYS.requestHistory, []),
   userEventLog: readJson(STORAGE_KEYS.userEventLog, []),
@@ -143,6 +144,7 @@ export const useExplorerStore = create((set, get) => ({
       isMixGenerating: false,
       mixTaskId: null,
       mixError: null,
+      creativeLineages: [],
       hoveredCandidateId: null,
       artifacts: [],
       artifactMetadataById: {},
@@ -257,6 +259,11 @@ export const useExplorerStore = create((set, get) => ({
     set({ activePanel });
     get().logUserEvent(activePanel ? 'panel.open' : 'panel.close', { activePanel });
   },
+  addCreativeLineage: (record) =>
+    set((state) => ({
+      creativeLineages: [...state.creativeLineages, record],
+    })),
+  clearCreativeLineages: () => set({ creativeLineages: [] }),
 
   addRequestHistory: (entry) =>
     set((state) => {
