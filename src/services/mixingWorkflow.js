@@ -22,7 +22,7 @@ export async function generateCandidateMix(options = {}) {
   const weights = normalizeWeights(store.mixingWeights.slice(0, candidateIds.length));
   const outputBars = Number(options.outputBars) || 4;
   const targetBpm = Number(options.targetBpm) || 100;
-  const chordProgression = options.chordProgression?.length ? options.chordProgression : ['C', 'Am', 'F', 'G'];
+  const chordProgression = options.chordProgression?.length ? options.chordProgression : uiText.mixing.defaultChordProgression;
   const renderAudio = options.renderAudio ?? true;
   const previousCandidateIds = new Set(store.candidates.map((candidate) => candidate.candidate_id));
 

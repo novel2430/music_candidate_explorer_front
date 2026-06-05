@@ -48,7 +48,7 @@ function useSynthesisPhase(enabled, isActive) {
 
 function contributionBadge(contribution) {
   const parents = contribution?.dominantParents || [];
-  if (contribution?.dominantType === 'balanced') return 'balance';
+  if (contribution?.dominantType === 'balanced') return uiText.mixing.contributionTable.balance;
   return parents.join('+') || '?';
 }
 
@@ -68,27 +68,33 @@ function contributionPercent(contribution, parentKey) {
 function contributionTitle(locus) {
   const lines = [
     locus.label,
-    `Expected: ${Number(locus.value).toFixed(2)}`,
+    uiText.mixing.contributionTable.tooltipExpected(Number(locus.value).toFixed(2)),
     ...(locus.contribution?.scores || []).map((score) => (
-      `${score.parentKey || score.name}: value ${Number(score.value).toFixed(2)} · weight ${Math.round(score.weight * 100)}% · score ${Number(score.score).toFixed(3)} · normalized ${Math.round(score.normalizedScore * 100)}%`
+      uiText.mixing.contributionTable.tooltipParent({
+        parent: score.parentKey || score.name,
+        value: Number(score.value).toFixed(2),
+        weight: `${Math.round(score.weight * 100)}%`,
+        score: Number(score.score).toFixed(3),
+        normalized: `${Math.round(score.normalizedScore * 100)}%`,
+      })
     )),
-    `Result: ${locus.contribution?.label || 'balanced'}`,
+    uiText.mixing.contributionTable.tooltipResult(locus.contribution?.label || 'balanced'),
   ];
   return lines.join('\n');
 }
 
 function compactGeneLabel(locus) {
   if (locus.id === 'x-axis' || locus.id === 'y-axis') {
-    return String(locus.label || '').replace(/axis character|axis|基因/gi, '').trim() || '性格';
+    return String(locus.label || '').replace(/axis character|axis|基因/gi, '').trim() || uiText.mixing.compactGeneLabels.unknownAxis;
   }
 
   const labels = {
-    density: '密度',
-    rhythm_activity: '节奏',
-    dynamic_level: '力度',
-    register: '音区',
-    polyphony: '织体',
-    pitch_range: '音域',
+    density: uiText.mixing.compactGeneLabels.density,
+    rhythm_activity: uiText.mixing.compactGeneLabels.rhythmActivity,
+    dynamic_level: uiText.mixing.compactGeneLabels.dynamicLevel,
+    register: uiText.mixing.compactGeneLabels.register,
+    polyphony: uiText.mixing.compactGeneLabels.polyphony,
+    pitch_range: uiText.mixing.compactGeneLabels.pitchRange,
   };
   return labels[locus.id] || locus.label.replace('基因', '');
 }
@@ -104,15 +110,15 @@ function backbonePath(points) {
 
 function profileStatus(parentGenomes) {
   const withIds = parentGenomes.filter((parent) => parent.candidate?.gene_profile_id);
-  if (!withIds.length) return { label: 'Summary-level genome preview.', state: 'summary', hasError: false };
+  if (!withIds.length) return { label: uiText.mixing.synthesisStatus.summary, state: 'summary', hasError: false };
   const loaded = withIds.filter((parent) => parent.profileStatus === 'loaded').length;
   const loading = withIds.some((parent) => parent.profileStatus === 'loading');
   const errored = withIds.some((parent) => parent.profileStatus === 'error');
-  if (errored) return { label: 'Some profiles failed. Showing best available genome data.', state: 'error', hasError: true };
-  if (loaded === withIds.length) return { label: 'Detailed parent genomes loaded.', state: 'loaded', hasError: false };
-  if (loading) return { label: `Loading detailed parent genomes... ${loaded} / ${withIds.length} ready.`, state: 'loading', hasError: false };
-  if (loaded > 0) return { label: `Detailed genomes partially loaded · ${loaded} / ${withIds.length} ready.`, state: 'partial', hasError: false };
-  return { label: 'Summary-level genome preview.', state: 'summary', hasError: false };
+  if (errored) return { label: uiText.mixing.synthesisStatus.error, state: 'error', hasError: true };
+  if (loaded === withIds.length) return { label: uiText.mixing.synthesisStatus.loaded, state: 'loaded', hasError: false };
+  if (loading) return { label: uiText.mixing.synthesisStatus.loading(loaded, withIds.length), state: 'loading', hasError: false };
+  if (loaded > 0) return { label: uiText.mixing.synthesisStatus.partial(loaded, withIds.length), state: 'partial', hasError: false };
+  return { label: uiText.mixing.synthesisStatus.summary, state: 'summary', hasError: false };
 }
 
 export function ExpectedGenomePreview({ parentGenomes, expectedLoci, isActive = false, onRetryFailedProfiles }) {
@@ -175,7 +181,7 @@ export function ExpectedGenomePreview({ parentGenomes, expectedLoci, isActive = 
         <span>{status.label}</span>
         {status.hasError && (
           <button type="button" onClick={onRetryFailedProfiles}>
-            Retry
+            {uiText.mixing.synthesisStatus.retry}
           </button>
         )}
       </div>
@@ -214,10 +220,10 @@ export function ExpectedGenomePreview({ parentGenomes, expectedLoci, isActive = 
           );
         })}
       </svg>
-      <div className="mix-synthesis-contributions" role="table" aria-label="Expected child genome contribution table">
+      <div className="mix-synthesis-contributions" role="table" aria-label={uiText.mixing.contributionTable.ariaLabel}>
         <div className="mix-synthesis-contribution-head" role="row">
-          <span role="columnheader">Gene</span>
-          <span role="columnheader">Source</span>
+          <span role="columnheader">{uiText.mixing.contributionTable.gene}</span>
+          <span role="columnheader">{uiText.mixing.contributionTable.source}</span>
           {parentGenomes.map((parent) => (
             <span role="columnheader" key={parent.name}>{parent.name}</span>
           ))}

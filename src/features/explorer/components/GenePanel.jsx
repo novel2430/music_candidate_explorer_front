@@ -10,7 +10,10 @@ import { GeneDnaVisualization } from './GeneDnaVisualization.jsx';
 import { SemanticTagPills } from './SemanticTagPills.jsx';
 
 function candidateTitle(candidate) {
-  return candidate?.rank != null ? uiText.gene.subtitle(candidate.rank) : candidate?.candidate_id;
+  if (candidate?.rank == null) return candidate?.candidate_id;
+  return candidate.source?.type === 'generated_artifact'
+    ? uiText.candidate.offspringTitle(candidate.rank)
+    : uiText.gene.subtitle(candidate.rank);
 }
 
 function truncateHash(value) {
@@ -25,38 +28,38 @@ function displayValue(value) {
 }
 
 function ProfileStatus({ geneProfileId, profile, status, error }) {
-  if (!geneProfileId) return <p className="gene-profile-status">No gene profile id. Showing summary-level genome.</p>;
-  if (status === 'loading') return <p className="gene-profile-status is-loading">Loading detailed profile...</p>;
-  if (status === 'error') return <p className="gene-profile-status is-error" title={error}>Could not load detailed profile. Showing summary-level genome.</p>;
+  if (!geneProfileId) return <p className="gene-profile-status">{uiText.gene.profileStatus.noGeneProfileId}</p>;
+  if (status === 'loading') return <p className="gene-profile-status is-loading">{uiText.gene.profileStatus.loading}</p>;
+  if (status === 'error') return <p className="gene-profile-status is-error" title={error}>{uiText.gene.profileStatus.error}</p>;
   if (status === 'loaded') {
     return (
       <div className="gene-profile-status is-loaded">
-        <strong>Detailed profile loaded · {profile?.analysis_version || 'unknown version'}</strong>
-        <span>midi: {truncateHash(profile?.midi_sha256)} · config: {truncateHash(profile?.analyzer_config_hash)}</span>
+        <strong>{uiText.gene.profileStatus.loaded(profile?.analysis_version)}</strong>
+        <span>{uiText.gene.profileStatus.loadedMeta(truncateHash(profile?.midi_sha256), truncateHash(profile?.analyzer_config_hash))}</span>
       </div>
     );
   }
-  return <p className="gene-profile-status">Summary preview only.</p>;
+  return <p className="gene-profile-status">{uiText.gene.profileStatus.summary}</p>;
 }
 
 function BasicInfo({ basic, warnings }) {
   if (!basic) return null;
   const rows = [
-    ['Duration', `${displayValue(basic.duration_sec)} sec`],
-    ['Tempo', `${displayValue(basic.tempo_bpm)} BPM`],
-    ['Meter', displayValue(basic.time_signature)],
-    ['Bars', displayValue(basic.estimated_bars)],
-    ['Tracks', displayValue(basic.num_tracks)],
-    ['Programs', displayValue(basic.programs)],
-    ['Pitched notes', displayValue(basic.num_pitched_notes)],
-    ['Drums', displayValue(basic.has_drums)],
+    [uiText.gene.basicRows.duration, `${displayValue(basic.duration_sec)} ${uiText.gene.basicRows.secondsUnit}`],
+    [uiText.gene.basicRows.tempo, `${displayValue(basic.tempo_bpm)} ${uiText.gene.basicRows.bpmUnit}`],
+    [uiText.gene.basicRows.meter, displayValue(basic.time_signature)],
+    [uiText.gene.basicRows.bars, displayValue(basic.estimated_bars)],
+    [uiText.gene.basicRows.tracks, displayValue(basic.num_tracks)],
+    [uiText.gene.basicRows.programs, displayValue(basic.programs)],
+    [uiText.gene.basicRows.pitchedNotes, displayValue(basic.num_pitched_notes)],
+    [uiText.gene.basicRows.drums, displayValue(basic.has_drums)],
   ];
 
   return (
     <section className="gene-section gene-basic-card">
       <div className="gene-section-head"><h3>{uiText.gene.basicTitle}</h3></div>
       {rows.map(([key, value]) => <div className="gene-feature-row" key={key}><span>{key}</span><strong>{value}</strong></div>)}
-      {!!warnings?.length && <small className="gene-warnings" title={warnings.slice(0, 3).join('\n')}>{warnings.length} warning(s)</small>}
+      {!!warnings?.length && <small className="gene-warnings" title={warnings.slice(0, 3).join('\n')}>{uiText.gene.basicRows.warnings(warnings.length)}</small>}
     </section>
   );
 }
@@ -127,8 +130,8 @@ export function GenePanel() {
               <div className="gene-harmony-chain">
                 {chords.length ? chords.map((chord, index) => <span key={`${chord}-${index}`}><strong>{chord}</strong>{index < chords.length - 1 && <i>→</i>}</span>) : <small>{uiText.gene.noChords}</small>}
               </div>
-              {userChords.length ? <p className="gene-harmony-meta">source: mix settings chord progression</p> : harmony && <p className="gene-harmony-meta">provider: {harmony.provider || '-'} · status: {harmony.status || '-'} · unique chords: {harmony.unique_chord_count ?? '-'} · unknown: {harmony.unknown_chord_ratio != null ? `${formatProfileNumber(harmony.unknown_chord_ratio * 100)}%` : '-'}</p>}
-              {!!barChords.length && <div className="gene-bar-chords">{barChords.map((chord, index) => <span key={`${chord}-${index}`}><small>Bar {index + 1}</small><strong>{chord || '-'}</strong></span>)}</div>}
+              {userChords.length ? <p className="gene-harmony-meta">{uiText.gene.harmonyMeta.mixSettingsSource}</p> : harmony && <p className="gene-harmony-meta">{uiText.gene.harmonyMeta.provider(harmony.provider, harmony.status, harmony.unique_chord_count, harmony.unknown_chord_ratio != null ? `${formatProfileNumber(harmony.unknown_chord_ratio * 100)}%` : '-')}</p>}
+              {!!barChords.length && <div className="gene-bar-chords">{barChords.map((chord, index) => <span key={`${chord}-${index}`}><small>{uiText.gene.harmonyMeta.bar(index + 1)}</small><strong>{chord || '-'}</strong></span>)}</div>}
             </section>
           </div>
 
@@ -139,9 +142,9 @@ export function GenePanel() {
               <div className="gene-loci-list">
                 {loci.map((locus) => (
                   <article key={locus.id}>
-                    <div className="gene-locus-head"><strong>{locus.label}</strong><small className={`gene-locus-source ${locus.isNumeric ? 'is-numeric' : 'is-summary'}`}>{locus.isNumeric ? locus.sourceType : 'summary fallback'}</small></div>
+                    <div className="gene-locus-head"><strong>{locus.label}</strong><small className={`gene-locus-source ${locus.isNumeric ? 'is-numeric' : 'is-summary'}`}>{locus.isNumeric ? locus.sourceType : uiText.gene.loci.summaryFallback}</small></div>
                     <span>{locus.valueLabel}</span>
-                    <small className="gene-locus-raw">source: {locus.source}</small>
+                    <small className="gene-locus-raw">{uiText.gene.loci.source(locus.source)}</small>
                     <div className="gene-locus-meter"><i style={{ width: `${locus.value * 100}%` }} /></div>
                   </article>
                 ))}

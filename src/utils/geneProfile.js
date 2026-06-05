@@ -59,7 +59,7 @@ function axisLocus(candidate, currentSpace, candidates, axis) {
     source: `axis.${axis}`,
     sourceType: 'axis',
     isNumeric: true,
-    description: `Normalized position on the current candidate space ${axis.toUpperCase()} axis.`,
+    description: `Normalized position on the current seed space ${axis.toUpperCase()} axis.`,
   };
 }
 

@@ -10,8 +10,8 @@ function shortCandidateId(candidateId) {
 }
 
 function candidateTitle(candidateId, candidate, isGenerated) {
-  if (candidate?.rank != null) return `${isGenerated ? 'Generated' : 'Candidate'} #${candidate.rank}`;
-  return `${isGenerated ? 'Generated' : 'Candidate'} ${shortCandidateId(candidateId)}`;
+  if (candidate?.rank != null) return isGenerated ? uiText.candidate.offspringTitle(candidate.rank) : uiText.candidate.title(candidate.rank);
+  return isGenerated ? uiText.candidate.offspringShortTitle(shortCandidateId(candidateId)) : uiText.candidate.shortTitle(shortCandidateId(candidateId));
 }
 
 function chordSummary(chords) {
@@ -217,7 +217,7 @@ function buildFamilyTrees({ lineages, candidates, candidateMarks }) {
 function FamilyTreeTabs({ trees, activeTreeId, onSelect }) {
   if (!trees.length) return null;
   return (
-    <div className="family-tree-tabs" role="tablist" aria-label="Creative family trees">
+    <div className="family-tree-tabs" role="tablist" aria-label={uiText.familyTree.tabs.ariaLabel}>
       {trees.map((tree) => (
         <button
           className={tree.treeId === activeTreeId ? 'is-active' : ''}
@@ -228,8 +228,8 @@ function FamilyTreeTabs({ trees, activeTreeId, onSelect }) {
           onClick={() => onSelect(tree.treeId)}
         >
           <span>{tree.title}</span>
-          <small>{tree.lineages.length} {tree.lineages.length === 1 ? 'mix' : 'mixes'}</small>
-          {tree.hasCrossTreeMix && <em>Cross-tree</em>}
+          <small>{uiText.familyTree.tabs.mixCount(tree.lineages.length)}</small>
+          {tree.hasCrossTreeMix && <em>{uiText.familyTree.tabs.crossTree}</em>}
         </button>
       ))}
     </div>
@@ -267,8 +267,8 @@ function FamilyTreeNodeCard({ node, isPlaying, isSelected, isInMix, onSelect, on
           </span>
           {node.role === 'parent' && node.weight != null && <span className="family-tree-badge is-weight">{Math.round(node.weight * 100)}%</span>}
           {node.role === 'child' && node.lineage && <span className="family-tree-badge is-mix">{uiText.familyTree.badges.mix(node.lineage.mixIndex)}</span>}
-          {node.isRepeatedCandidate && <span className="family-tree-badge is-reused">reused</span>}
-          {node.isCrossTree && <span className="family-tree-badge is-cross-tree">Cross-tree mix</span>}
+          {node.isRepeatedCandidate && <span className="family-tree-badge is-reused">{uiText.familyTree.badges.reused}</span>}
+          {node.isCrossTree && <span className="family-tree-badge is-cross-tree">{uiText.familyTree.badges.crossTree}</span>}
           {node.mark === 'interesting' && <span className="family-tree-badge is-interesting">{uiText.familyTree.badges.interesting}</span>}
           {node.mark === 'good' && <span className="family-tree-badge is-good">{uiText.familyTree.badges.good}</span>}
           {isSelected && <span className="family-tree-badge is-selected">{uiText.familyTree.badges.selected}</span>}
@@ -389,6 +389,12 @@ export function CreativeFamilyTreePanel() {
     state.setActivePanel(null);
   }
 
+  function clearTree() {
+    if (window.confirm(uiText.familyTree.actions.clearConfirm)) {
+      state.clearCreativeLineages();
+    }
+  }
+
   return (
     <div className="panel-backdrop" onMouseDown={closePanel}>
       <aside className="family-tree-panel" onMouseDown={(event) => event.stopPropagation()}>
@@ -398,7 +404,7 @@ export function CreativeFamilyTreePanel() {
             <p>{uiText.familyTree.subtitle}</p>
           </div>
           <div className="family-tree-head-actions">
-            <button onClick={state.clearCreativeLineages} disabled={!state.creativeLineages.length}>{uiText.familyTree.actions.clear}</button>
+            <button onClick={clearTree} disabled={!state.creativeLineages.length}>{uiText.familyTree.actions.clear}</button>
             <button onClick={closePanel} title={uiText.panels.close}><X size={17} /></button>
           </div>
         </header>

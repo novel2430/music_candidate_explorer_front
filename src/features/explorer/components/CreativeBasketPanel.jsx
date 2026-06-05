@@ -10,17 +10,19 @@ function shortCandidateId(candidateId) {
 }
 
 function candidateLabel(candidate) {
-  return candidate?.rank != null ? `Candidate #${candidate.rank}` : `Candidate ${shortCandidateId(candidate?.candidate_id)}`;
+  const isGenerated = candidate?.source?.type === 'generated_artifact';
+  if (candidate?.rank != null) return isGenerated ? uiText.candidate.offspringTitle(candidate.rank) : uiText.candidate.title(candidate.rank);
+  return isGenerated ? uiText.candidate.offspringShortTitle(shortCandidateId(candidate?.candidate_id)) : uiText.candidate.shortTitle(shortCandidateId(candidate?.candidate_id));
 }
 
 function summaryRows(candidate, lineages = []) {
   const summary = candidate?.music_summary || {};
   const rows = [
-    ['Density', summary.density],
-    ['Register', summary.register],
-    ['Rhythm', summary.rhythm_activity],
-    ['Dynamic', summary.dynamic_level],
-    ['Chords', chordSummaryForCandidate({ candidate, lineages })],
+    [uiText.creativeBasket.summaryLabels.density, summary.density],
+    [uiText.creativeBasket.summaryLabels.register, summary.register],
+    [uiText.creativeBasket.summaryLabels.rhythm, summary.rhythm_activity],
+    [uiText.creativeBasket.summaryLabels.dynamic, summary.dynamic_level],
+    [uiText.creativeBasket.summaryLabels.chords, chordSummaryForCandidate({ candidate, lineages })],
   ];
   return rows.filter(([, value]) => value);
 }

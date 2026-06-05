@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { uiText } from '../../../config/uiText.js';
 
 const VIEWBOX = { width: 680, height: 500 };
 const LABEL_WIDTH = 124;
@@ -84,7 +85,7 @@ export function GeneDnaVisualization({ loci, isPlaying = false }) {
       className={`gene-dna ${isPlaying ? 'is-playing' : ''}`}
       viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
       role="img"
-      aria-label="Music genome DNA keys"
+      aria-label={uiText.gene.dnaAriaLabel}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

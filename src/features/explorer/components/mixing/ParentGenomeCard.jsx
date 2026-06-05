@@ -24,12 +24,12 @@ export function ParentGenomeCard({ parentGenome, isPlaying, onOpenGene, onRemove
       </div>
       <small className={`mix-parent-profile-status is-${parentGenome.profileStatus}`}>
         {parentGenome.profileStatus === 'loaded'
-          ? 'Detailed genome ready'
+          ? uiText.mixing.parentGenomeStatus.loaded
           : parentGenome.profileStatus === 'loading'
-            ? 'Loading detailed genome...'
+            ? uiText.mixing.parentGenomeStatus.loading
             : parentGenome.profileStatus === 'error'
-              ? 'Summary genome fallback'
-              : 'Summary genome'}
+              ? uiText.mixing.parentGenomeStatus.error
+              : uiText.mixing.parentGenomeStatus.summary}
       </small>
       <SemanticTagPills tags={(candidate?.semantic_tags || []).slice(0, 4)} compact />
       <div className="mix-parent-metrics">

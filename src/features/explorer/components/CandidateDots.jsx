@@ -57,7 +57,7 @@ export function CandidateDots({ bounds }) {
             }}
             onMouseEnter={() => hoverCandidate(candidate.candidate_id)}
             onMouseLeave={() => hoverCandidate(null)}
-            aria-label={uiText.candidate.ariaLabel(candidate.rank)}
+            aria-label={isGenerated ? uiText.candidate.offspringAriaLabel(candidate.rank) : uiText.candidate.ariaLabel(candidate.rank)}
           >
             {isMixing && <span className="mixing-badge">{mixingIndex + 1}</span>}
           </button>

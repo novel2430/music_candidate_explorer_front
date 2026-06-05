@@ -27,7 +27,7 @@ export function CandidateHud() {
     <section className={`candidate-hud ${collapsed ? 'is-collapsed' : ''}`} onPointerDown={(event) => event.stopPropagation()}>
       <div className="hud-head">
         <div>
-          <div className="hud-kicker">{uiText.candidate.title(selectedCandidate.rank)}</div>
+          <div className="hud-kicker">{isGenerated ? uiText.candidate.offspringTitle(selectedCandidate.rank) : uiText.candidate.title(selectedCandidate.rank)}</div>
           {isGenerated && <div className="generated-kicker">{uiText.candidate.generatedMix}</div>}
           <SemanticTagPills tags={selectedCandidate.semantic_tags} />
         </div>

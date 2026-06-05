@@ -72,7 +72,7 @@ function mapCandidatesToPanelAnchors(candidates) {
 export function MixingPanel() {
   const [outputBars, setOutputBars] = useState(4);
   const [targetBpm, setTargetBpm] = useState(100);
-  const [chords, setChords] = useState(['C', 'Am', 'F', 'G']);
+  const [chords, setChords] = useState(uiText.mixing.defaultChordProgression);
   const [geometryZoom, setGeometryZoom] = useState(1);
   const [isAdjustingWeights, setIsAdjustingWeights] = useState(false);
   const state = useExplorerStore();
@@ -135,7 +135,7 @@ export function MixingPanel() {
 
   function updateOutputBars(nextOutputBars) {
     setOutputBars(nextOutputBars);
-    setChords((current) => Array.from({ length: nextOutputBars }, (_, index) => current[index % current.length] || 'C'));
+    setChords((current) => Array.from({ length: nextOutputBars }, (_, index) => current[index % current.length] || uiText.mixing.defaultChordProgression[0]));
   }
 
   function updateChord(index, value) {
