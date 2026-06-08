@@ -36,7 +36,7 @@ export function TopBanner() {
           {state.recentQueries.map((item) => <option value={item} key={item} />)}
         </datalist>
         <button className="primary-button" type="submit" disabled={busy}>
-          <Search size={16} /> {uiText.topBanner.search}
+          <Search size={16} />
         </button>
       </form>
 
@@ -44,8 +44,6 @@ export function TopBanner() {
         <span className={`status-dot ${busy ? 'is-busy' : ''}`} />
         <span>{state.taskStatus}</span>
         <span>{uiText.topBanner.candidateCount(state.candidates.length)}</span>
-        <span>{state.selectedPair?.length ? state.selectedPair.join(' + ') : uiText.topBanner.noPair}</span>
-        <span className="current-query">{state.currentQuery || uiText.topBanner.noQuery}</span>
       </div>
 
       <nav className="banner-actions">
@@ -64,9 +62,9 @@ export function TopBanner() {
           <GitBranch size={16} /> {uiText.familyTree.open(familyTreeCount)}
         </button>
         <button title={uiText.mixing.open} disabled={!canMix} onClick={() => state.setActivePanel('mixing')}><Blend size={16} /> {uiText.mixing.open}</button>
-        <button title={uiText.topBanner.advanced} onClick={() => state.setActivePanel('advanced')}><Gauge size={16} /> {uiText.topBanner.advanced}</button>
-        <button title={uiText.topBanner.theme} onClick={() => state.setActivePanel('theme')}><Palette size={16} /> {uiText.topBanner.theme}</button>
-        <button title={uiText.topBanner.debug} onClick={() => state.setActivePanel('debug')}><Bug size={16} /> {uiText.topBanner.debug}</button>
+        <button title={uiText.topBanner.advanced} onClick={() => state.setActivePanel('advanced')}><Gauge size={16} /></button>
+        <button title={uiText.topBanner.theme} onClick={() => state.setActivePanel('theme')}><Palette size={16} /></button>
+        <button title={uiText.topBanner.debug} onClick={() => state.setActivePanel('debug')}><Bug size={16} /></button>
       </nav>
     </header>
   );

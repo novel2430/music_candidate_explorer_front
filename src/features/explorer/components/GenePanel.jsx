@@ -106,7 +106,6 @@ export function GenePanel() {
         <header className="gene-panel-head">
           <div>
             <h2><Dna size={19} /> {uiText.gene.title}</h2>
-            <p>{candidateTitle(candidate)} · {geneProfileId || uiText.gene.geneIdPending}</p>
             <ProfileStatus geneProfileId={geneProfileId} profile={profile} status={status} error={error} />
           </div>
           <div className="gene-panel-head-actions">
@@ -127,10 +126,6 @@ export function GenePanel() {
             </section>
             <section className="gene-section">
               <div className="gene-section-head"><h3>{uiText.gene.harmonyTitle}</h3></div>
-              <div className="gene-harmony-chain">
-                {chords.length ? chords.map((chord, index) => <span key={`${chord}-${index}`}><strong>{chord}</strong>{index < chords.length - 1 && <i>→</i>}</span>) : <small>{uiText.gene.noChords}</small>}
-              </div>
-              {userChords.length ? <p className="gene-harmony-meta">{uiText.gene.harmonyMeta.mixSettingsSource}</p> : harmony && <p className="gene-harmony-meta">{uiText.gene.harmonyMeta.provider(harmony.provider, harmony.status, harmony.unique_chord_count, harmony.unknown_chord_ratio != null ? `${formatProfileNumber(harmony.unknown_chord_ratio * 100)}%` : '-')}</p>}
               {!!barChords.length && <div className="gene-bar-chords">{barChords.map((chord, index) => <span key={`${chord}-${index}`}><small>{uiText.gene.harmonyMeta.bar(index + 1)}</small><strong>{chord || '-'}</strong></span>)}</div>}
             </section>
           </div>
@@ -142,9 +137,8 @@ export function GenePanel() {
               <div className="gene-loci-list">
                 {loci.map((locus) => (
                   <article key={locus.id}>
-                    <div className="gene-locus-head"><strong>{locus.label}</strong><small className={`gene-locus-source ${locus.isNumeric ? 'is-numeric' : 'is-summary'}`}>{locus.isNumeric ? locus.sourceType : uiText.gene.loci.summaryFallback}</small></div>
+                    <div className="gene-locus-head"><strong>{locus.label}</strong></div>
                     <span>{locus.valueLabel}</span>
-                    <small className="gene-locus-raw">{uiText.gene.loci.source(locus.source)}</small>
                     <div className="gene-locus-meter"><i style={{ width: `${locus.value * 100}%` }} /></div>
                   </article>
                 ))}
